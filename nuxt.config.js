@@ -24,7 +24,7 @@ if ( !api.startsWith('http') ) {
 }
 
 let routerBasePath = '/';
-let resourceBase = '';
+let resourceBase = './';
 let outputDir = 'dist';
 
 if ( typeof process.env.ROUTER_BASE !== 'undefined' ) {

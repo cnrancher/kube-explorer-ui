@@ -21,6 +21,9 @@ DIR=${GIT_TAG:-$COMMIT_BRANCH}
 echo "Building..."
 NUXT_ENV_commit=${COMMIT} NUXT_ENV_version=${VERSION} OUTPUT_DIR=dist/${DIR}-embedded ROUTER_BASE='/dashboard' yarn run build --spa
 
+echo "Update app router config..."
+find dist/* -maxdepth 1 -name "app.*.js" | head -n 1 | xargs sed -i.bak -e 's/base:decodeURI("\/dashboard\/")/base:decodeURI(document.querySelector("head > base").href.replace(window.location.origin, ""))/'
+
 echo "Destroying..."
 find dist/${DIR}-embedded -name "index.html" -mindepth 2 -exec rm {} \;
 find dist/${DIR}-embedded -type d -empty -depth -exec rmdir {} \;
