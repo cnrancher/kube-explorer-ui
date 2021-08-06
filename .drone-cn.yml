@@ -1,0 +1,63 @@
+---
+kind: pipeline
+name: test
+
+trigger:
+  event:
+  - push
+  - pull_request
+  - tag
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: test
+  pull: default
+  image: node:12
+  commands:
+  - scripts/ci
+
+node:
+  instance: agent-amd64
+
+---
+kind: pipeline
+name: embedded-tag
+
+depends_on:
+- test
+
+trigger:
+  event:
+  - tag
+
+platform:
+  os: linux
+  arch: amd64
+
+steps:
+- name: build
+  pull: default
+  image: node:12
+  commands:
+  - ./scripts/build-embedded
+
+- name: upload
+  pull: default
+  image: plugins/s3
+  settings:
+    bucket: rancher-dashboard-ui
+    region: ap-southeast-2
+    acl: public-read
+    access_key:
+      from_secret: aws_access_id
+    secret_key:
+      from_secret: aws_access_secret
+    source: dist/${DRONE_TAG}.tar.gz
+    strip_prefix: dist/
+    target: ${DRONE_BRANCH}/kube-explorer-ui
+
+node:
+  instance: agent-amd64
