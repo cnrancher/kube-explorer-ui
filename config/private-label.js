@@ -6,6 +6,7 @@ export const CUSTOM = 2;
 
 const STANDARD_VENDOR = 'Rancher';
 const STANDARD_PRODUCT = 'Explorer';
+const DEFAULT_VENDOR = 'Dashboard'; // add for kube-explorer
 
 let mode = STANDARD;
 let vendor = STANDARD_VENDOR;
@@ -44,6 +45,10 @@ export function matches(pl) {
 export function getVendor() {
   if ( vendor === SETTING.PL_RANCHER_VALUE ) {
     return STANDARD_VENDOR;
+  }
+  // add for kube-explorer
+  if (vendor === STANDARD_VENDOR) {
+    return DEFAULT_VENDOR;
   }
 
   return vendor;
