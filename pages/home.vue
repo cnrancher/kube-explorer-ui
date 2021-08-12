@@ -53,11 +53,11 @@ export default {
     const fullVersion = getVersionInfo(this.$store).fullVersion;
     // Page actions don't change on the Home Page
     const pageActions = [
-      {
-        labelKey: 'nav.header.setLoginPage',
-        action:   SET_LOGIN_ACTION
-      },
-      { seperator: true },
+      // {
+      //   labelKey: 'nav.header.setLoginPage',
+      //   action:   SET_LOGIN_ACTION
+      // },
+      // { seperator: true },
       {
         labelKey: 'nav.header.restoreCards',
         action:   RESET_CARDS_ACTION

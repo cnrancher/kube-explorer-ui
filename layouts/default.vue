@@ -79,14 +79,14 @@ export default {
       }
 
       // Only show for Cluster Explorer or Global Apps (not configuration)
-      const canSetAsHome = product.inStore === 'cluster' || (product.inStore === 'management' && product.category !== 'configuration');
+      // const canSetAsHome = product.inStore === 'cluster' || (product.inStore === 'management' && product.category !== 'configuration');
 
-      if (canSetAsHome) {
-        pageActions.push({
-          labelKey: 'nav.header.setLoginPage',
-          action:   SET_LOGIN_ACTION
-        });
-      }
+      // if (canSetAsHome) {
+      //   pageActions.push({
+      //     labelKey: 'nav.header.setLoginPage',
+      //     action:   SET_LOGIN_ACTION
+      //   });
+      // }
 
       return pageActions;
     },
@@ -506,15 +506,15 @@ export default {
             </Group>
           </template>
         </div>
-        <n-link v-if="isExplorer" tag="div" class="tools" :to="{name: 'c-cluster-explorer-tools', params: {cluster: clusterId}}">
+        <!-- <n-link v-if="isExplorer" tag="div" class="tools" :to="{name: 'c-cluster-explorer-tools', params: {cluster: clusterId}}">
           <a class="tools-button" @click="collapseAll()">
             <i class="icon icon-gear" />
             <span>{{ t('nav.clusterTools') }}</span>
           </a>
-        </n-link>
-        <div class="version text-muted">
+        </n-link> -->
+        <!-- <div class="version text-muted">
           {{ displayVersion }}
-        </div>
+        </div> -->
       </nav>
       <main v-if="clusterReady">
         <nuxt class="outlet" />

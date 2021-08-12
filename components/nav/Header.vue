@@ -218,7 +218,7 @@ export default {
           <i class="icon icon-terminal icon-lg" />
         </button>
 
-        <button
+        <!-- <button
           v-tooltip="t('nav.kubeconfig')"
           :disabled="!kubeConfigEnabled"
           type="button"
@@ -226,7 +226,7 @@ export default {
           @click="currentCluster.downloadKubeConfig()"
         >
           <i class="icon icon-file icon-lg" />
-        </button>
+        </button> -->
       </template>
 
       <button
