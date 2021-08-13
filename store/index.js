@@ -1,6 +1,6 @@
 import Steve from '@/plugins/steve';
 import {
-  COUNT, NAMESPACE, NORMAN, MANAGEMENT, FLEET, UI
+  COUNT, NAMESPACE, MANAGEMENT, FLEET, UI
 } from '@/config/types';
 import { CLUSTER as CLUSTER_PREF, NAMESPACE_FILTERS, LAST_NAMESPACE, WORKSPACE } from '@/store/prefs';
 import { allHash, allHashSettled } from '@/utils/promise';
@@ -10,7 +10,7 @@ import { filterBy, findBy } from '@/utils/array';
 import { BOTH, CLUSTER_LEVEL, NAMESPACED } from '@/store/type-map';
 import { NAME as EXPLORER } from '@/config/product/explorer';
 import { TIMED_OUT, LOGGED_OUT, _FLAGGED, UPGRADED } from '@/config/query-params';
-import { setVendor } from '@/config/private-label';
+// import { setVendor } from '@/config/private-label';
 import { DEFAULT_WORKSPACE } from '@/models/provisioning.cattle.io.cluster';
 import { addParam } from '@/utils/url';
 import semver from 'semver';
@@ -437,16 +437,16 @@ export const actions = {
 
     console.log('Loading management...'); // eslint-disable-line no-console
 
-    try {
-      await dispatch('rancher/findAll', { type: NORMAN.PRINCIPAL, opt: { url: 'principals' } });
-    } catch (e) {
-      // Maybe not Rancher
-    }
+    // try {
+    //   await dispatch('rancher/findAll', { type: NORMAN.PRINCIPAL, opt: { url: 'principals' } });
+    // } catch (e) {
+    //   // Maybe not Rancher
+    // }
 
     let res = await allHashSettled({
       mgmtSubscribe:  dispatch('management/subscribe'),
       mgmtSchemas:    dispatch('management/loadSchemas', true),
-      rancherSchemas: dispatch('rancher/loadSchemas', true),
+      // rancherSchemas: dispatch('rancher/loadSchemas', true),
     });
 
     const promises = {
@@ -460,12 +460,13 @@ export const actions = {
       features: dispatch('features/loadServer'),
     };
 
-    const isRancher = res.rancherSchemas.status === 'fulfilled' && !!getters['management/schemaFor'](MANAGEMENT.PROJECT);
+    const isRancher = false;
+    // const isRancher = res.rancherSchemas.status === 'fulfilled' && !!getters['management/schemaFor'](MANAGEMENT.PROJECT);
 
-    if ( isRancher ) {
-      promises['prefs'] = dispatch('prefs/loadServer');
-      promises['rancherSubscribe'] = dispatch('rancher/subscribe');
-    }
+    // if ( isRancher ) {
+    //   promises['prefs'] = dispatch('prefs/loadServer');
+    //   promises['rancherSubscribe'] = dispatch('rancher/subscribe');
+    // }
 
     if ( getters['management/schemaFor'](COUNT) ) {
       promises['counts'] = dispatch('management/findAll', { type: COUNT });
@@ -493,11 +494,11 @@ export const actions = {
       isMultiCluster = false;
     }
 
-    const pl = res.settings?.find(x => x.name === 'ui-pl')?.value;
+    // const pl = res.settings?.find(x => x.name === 'ui-pl')?.value;
 
-    if ( pl ) {
-      setVendor(pl);
-    }
+    // if ( pl ) {
+    //   setVendor(pl);
+    // }
 
     commit('managementChanged', {
       ready: true,
