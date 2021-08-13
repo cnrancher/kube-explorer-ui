@@ -148,7 +148,7 @@ export default async function({
   }
 
   if ( store.getters['auth/enabled'] !== false && !store.getters['auth/loggedIn'] ) {
-    await store.dispatch('auth/getUser');
+    // await store.dispatch('auth/getUser');
     const v3User = store.getters['auth/v3User'] || {};
 
     if (v3User?.mustChangePassword) {
@@ -168,25 +168,26 @@ export default async function({
       notLoggedIn();
     } else {
       // Older versions look at principals and see what happens
-      try {
-        const me = await findMe(store);
+      // try {
+      //   const me = await findMe(store);
 
-        isLoggedIn(me);
-      } catch (e) {
-        const status = e?._status;
+      //   isLoggedIn(me);
+      // } catch (e) {
+      //   const status = e?._status;
 
-        if ( status === 404 ) {
-          noAuth();
-        } else {
-          if ( status === 401 ) {
-            notLoggedIn();
-          } else {
-            store.commit('setError', e);
-          }
+      //   if ( status === 404 ) {
+      //     noAuth();
+      //   } else {
+      //     if ( status === 401 ) {
+      //       notLoggedIn();
+      //     } else {
+      //       store.commit('setError', e);
+      //     }
 
-          return;
-        }
-      }
+      //     return;
+      //   }
+      // }
+      noAuth();
     }
   }
 
