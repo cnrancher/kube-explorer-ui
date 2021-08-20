@@ -473,9 +473,9 @@ export const actions = {
       promises['counts'] = dispatch('management/findAll', { type: COUNT });
     }
 
-    if ( getters['management/canList'](MANAGEMENT.SETTING) ) {
-      promises['settings'] = dispatch('management/findAll', { type: MANAGEMENT.SETTING });
-    }
+    // if ( getters['management/canList'](MANAGEMENT.SETTING) ) {
+    //   promises['settings'] = dispatch('management/findAll', { type: MANAGEMENT.SETTING });
+    // }
 
     if ( getters['management/schemaFor'](NAMESPACE) ) {
       promises['namespaces'] = dispatch('management/findAll', { type: NAMESPACE });
