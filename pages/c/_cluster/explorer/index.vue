@@ -34,7 +34,7 @@ import Tab from '@/components/Tabbed/Tab';
 import { allDashboardsExist } from '@/utils/grafana';
 import EtcdInfoBanner from '@/components/EtcdInfoBanner';
 import metricPoller from '@/mixins/metric-poller';
-import EmberPage from '@/components/EmberPage';
+// import EmberPage from '@/components/EmberPage';
 import ResourceSummary, { resourceCounts } from './ResourceSummary';
 import HardwareResourceGauge from './HardwareResourceGauge';
 
@@ -59,7 +59,7 @@ export default {
     Tabbed,
     AlertTable,
     Banner,
-    EmberPage,
+    // EmberPage,
   },
 
   mixins: [metricPoller],
@@ -332,12 +332,12 @@ export default {
         <span><LiveDate :value="currentCluster.metadata.creationTimestamp" :add-suffix="true" :show-tooltip="true" /></span>
       </div>
       <div :style="{'flex':1}" />
-      <div v-if="!monitoringStatus.v2 && !monitoringStatus.v1">
+      <!-- <div v-if="!monitoringStatus.v2 && !monitoringStatus.v1">
         <n-link :to="{name: 'c-cluster-explorer-tools'}" class="monitoring-install">
           <i class="icon icon-gear" />
           <span>{{ t('glance.installMonitoring') }}</span>
         </n-link>
-      </div>
+      </div> -->
       <div v-if="monitoringStatus.v1">
         <span>{{ t('glance.v1MonitoringInstalled') }}</span>
       </div>
@@ -358,9 +358,9 @@ export default {
       <HardwareResourceGauge :name="t('clusterIndexPage.hardwareResourceGauge.ram')" :reserved="ramReserved" :used="ramUsed" :units="ramReserved.units" />
     </div>
 
-    <div v-if="hasV1Monitoring" id="ember-anchor" class="mt-20">
+    <!-- <div v-if="hasV1Monitoring" id="ember-anchor" class="mt-20">
       <EmberPage inline="ember-anchor" :src="v1MonitoringURL" />
-    </div>
+    </div> -->
 
     <div class="mb-40 mt-40">
       <h3>{{ hasMonitoring ?t('clusterIndexPage.sections.alerts.label') :t('clusterIndexPage.sections.events.label') }}</h3>
