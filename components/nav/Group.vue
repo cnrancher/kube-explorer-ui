@@ -111,7 +111,7 @@ export default {
 
         const route = items[index].route;
 
-        if (route) {
+        if (route && this.$route.fullPath !== route.fullPath) {
           this.$router.replace(route);
         }
       }
