@@ -1,6 +1,7 @@
 <script>
 // import { SEEN_WHATS_NEW } from '@/store/prefs';
 // import { getVersionInfo } from '@/utils/version';
+import { NAME as MANAGER } from '@/config/product/manager';
 
 export default {
   // middleware({ redirect, store, route } ) {
@@ -17,8 +18,20 @@ export default {
 
   //   return redirect(afterLoginRouteObject);
   // }
-  middleware({ redirect } ) {
-    return redirect({ name: 'clusters' });
+  fetch({ store, redirect }) {
+    const id = store.getters['defaultClusterId'];
+
+    if ( id ) {
+      redirect({ name: 'c-cluster', params: { cluster: id } });
+    } else {
+      redirect({
+        name:   'c-cluster-product',
+        params: {
+          cluster: 'local',
+          product: MANAGER
+        }
+      });
+    }
   }
 };
 </script>
