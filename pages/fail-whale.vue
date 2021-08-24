@@ -9,7 +9,8 @@ export default {
   components: { BrandImage },
 
   data() {
-    const home = this.$router.resolve({ name: 'home' }).href;
+    // const home = this.$router.resolve({ name: 'home' }).href;
+    const home = process.client ? document.querySelector('head > base').href : '/';
     const store = this.$store;
 
     if ( process.client && !store.state.error && !store.state.cameFromError) {
