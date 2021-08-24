@@ -88,7 +88,7 @@ export default {
       this.$emit('expand', this.group);
     },
 
-    groupSelected() {
+    groupSelected(e) {
       // Don't do anything if we're in the fixed mode and this is an overview
       if (this.fixedOpen) {
         return;
@@ -99,7 +99,7 @@ export default {
       const items = this.group[this.childrenKey];
 
       // Navigate to one of the child items (by default the first child)
-      if (items && items.length > 0) {
+      if (items && items.length > 0 && e) {
         let index = 0;
 
         // If there is a default type, use it
@@ -111,7 +111,7 @@ export default {
 
         const route = items[index].route;
 
-        if (route) {
+        if (route && (this.$route.name !== route.name || JSON.stringify(this.$route.params ?? {}) !== JSON.stringify(route.params ?? {}))) {
           this.$router.replace(route);
         }
       }
