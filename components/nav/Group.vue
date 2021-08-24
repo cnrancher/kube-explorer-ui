@@ -111,7 +111,7 @@ export default {
 
         const route = items[index].route;
 
-        if (route) {
+        if (route && (this.$route.name !== route.name || JSON.stringify(this.$route.params ?? {}) !== JSON.stringify(route.params ?? {}))) {
           this.$router.replace(route);
         }
       }
