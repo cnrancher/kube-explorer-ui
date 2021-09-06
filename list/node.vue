@@ -8,10 +8,7 @@ import {
 } from '@/config/table-headers';
 import metricPoller from '@/mixins/metric-poller';
 
-import {
-  CAPI,
-  MANAGEMENT, METRIC, NODE, NORMAN, POD
-} from '@/config/types';
+import { CAPI, METRIC, NODE, POD } from '@/config/types';
 import { allHash } from '@/utils/promise';
 import { get } from '@/utils/object';
 import { GROUP_RESOURCES, mapPref } from '@/store/prefs';
@@ -39,14 +36,14 @@ export default {
 
     this.canViewPods = this.$store.getters[`cluster/schemaFor`](POD);
 
-    if (this.$store.getters[`management/schemaFor`](MANAGEMENT.NODE)) {
-      // Required for Drain/Cordon action
-      hash.normanNodes = this.$store.dispatch('rancher/findAll', { type: NORMAN.NODE });
-    }
+    // if (this.$store.getters[`management/schemaFor`](MANAGEMENT.NODE)) {
+    //   // Required for Drain/Cordon action
+    //   hash.normanNodes = this.$store.dispatch('rancher/findAll', { type: NORMAN.NODE });
+    // }
 
-    if (this.$store.getters[`rancher/schemaFor`](NORMAN.NODE)) {
-      hash.mgmtNodes = this.$store.dispatch('management/findAll', { type: MANAGEMENT.NODE });
-    }
+    // if (this.$store.getters[`rancher/schemaFor`](NORMAN.NODE)) {
+    //   hash.mgmtNodes = this.$store.dispatch('management/findAll', { type: MANAGEMENT.NODE });
+    // }
 
     if (this.$store.getters[`management/schemaFor`](CAPI.MACHINE)) {
       // Required for ssh / download key actions
