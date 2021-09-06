@@ -39,10 +39,10 @@ export default {
 
     this.canViewPods = this.$store.getters[`cluster/schemaFor`](POD);
 
-    if (this.$store.getters[`management/schemaFor`](MANAGEMENT.NODE)) {
-      // Required for Drain/Cordon action
-      hash.normanNodes = this.$store.dispatch('rancher/findAll', { type: NORMAN.NODE });
-    }
+    // if (this.$store.getters[`management/schemaFor`](MANAGEMENT.NODE)) {
+    //   // Required for Drain/Cordon action
+    //   hash.normanNodes = this.$store.dispatch('rancher/findAll', { type: NORMAN.NODE });
+    // }
 
     if (this.$store.getters[`rancher/schemaFor`](NORMAN.NODE)) {
       hash.mgmtNodes = this.$store.dispatch('management/findAll', { type: MANAGEMENT.NODE });
