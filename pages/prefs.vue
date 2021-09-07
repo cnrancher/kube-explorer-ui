@@ -208,13 +208,13 @@ export default {
         <Checkbox v-model="hideDescriptions" :label="t('prefs.hideDesc.label')" />
       </div>
     </div>
-    <hr />
+    <!-- <hr />
     <div class="row mb-20">
       <div class="col span-12">
         <h4 v-t="'prefs.helm.label'" />
         <ButtonGroup v-model="showPreRelease" :options="helmOptions" />
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 

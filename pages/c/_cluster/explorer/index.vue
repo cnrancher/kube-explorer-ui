@@ -5,7 +5,7 @@ import { mapGetters } from 'vuex';
 import SortableTable from '@/components/SortableTable';
 import { allHash } from '@/utils/promise';
 import AlertTable from '@/components/AlertTable';
-import Banner from '@/components/Banner';
+// import Banner from '@/components/Banner';
 import { parseSi, createMemoryValues } from '@/utils/units';
 import {
   NAME,
@@ -58,7 +58,7 @@ export default {
     Tab,
     Tabbed,
     AlertTable,
-    Banner,
+    // Banner,
     // EmberPage,
   },
 
@@ -306,14 +306,14 @@ export default {
         </div>
       </div>
     </header>
-    <Banner
+    <!-- <Banner
       v-if="!hideClusterToolsTip"
       :closable="true"
       class="cluster-tools-tip"
       color="info"
       label-key="cluster.toolsTip"
       @close="hideClusterToolsTip = true"
-    />
+    /> -->
     <div
       class="cluster-dashboard-glance"
     >
