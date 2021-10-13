@@ -3,6 +3,7 @@ import LabeledInput from '@/components/form/LabeledInput';
 import ColorInput from '@/components/form/ColorInput';
 
 import Checkbox from '@/components/form/Checkbox';
+import RadioGroup from '@/components/form/RadioGroup';
 import FileSelector from '@/components/form/FileSelector';
 import SimpleBox from '@/components/SimpleBox';
 import Loading from '@/components/Loading';
@@ -21,14 +22,22 @@ const parse = require('url-parse');
 
 const DEFAULT_BANNER_SETTING = {
   bannerHeader: {
-    background: null,
-    color:      null,
-    text:       null
+    background:      null,
+    color:           null,
+    textAlignment:   'center',
+    fontWeight:      null,
+    fontStyle:       null,
+    textDecoration:  null,
+    text:            null
   },
   bannerFooter: {
-    background: null,
-    color:      null,
-    text:       null
+    background:      null,
+    color:           null,
+    textAlignment:   'center',
+    fontWeight:      null,
+    fontStyle:       null,
+    textDecoration:  null,
+    text:            null
   },
   showHeader:   'false',
   showFooter:   'false',
@@ -38,7 +47,7 @@ export default {
   layout: 'authenticated',
 
   components: {
-    LabeledInput, Checkbox, FileSelector, Loading, SimpleBox, AsyncButton, Banner, ColorInput
+    LabeledInput, Checkbox, RadioGroup, FileSelector, Loading, SimpleBox, AsyncButton, Banner, ColorInput
   },
 
   async fetch() {
@@ -49,6 +58,7 @@ export default {
       uiLogoDarkSetting:      fetchOrCreateSetting(this.$store, SETTING.LOGO_DARK, ''),
       uiLogoLightSetting:     fetchOrCreateSetting(this.$store, SETTING.LOGO_LIGHT, ''),
       uiColorSetting:         fetchOrCreateSetting(this.$store, SETTING.PRIMARY_COLOR, ''),
+      uiLinkColorSetting:     fetchOrCreateSetting(this.$store, SETTING.LINK_COLOR, ''),
       uiCommunitySetting:     fetchOrCreateSetting(this.$store, SETTING.COMMUNITY_LINKS, 'true'),
     });
 
@@ -71,6 +81,10 @@ export default {
       this.uiColor = Color(hash.uiColorSetting.value).hex();
       this.customizeColor = true;
     }
+    if (hash.uiLinkColorSetting.value) {
+      this.uiLinkColor = Color(hash.uiLinkColorSetting.value).hex();
+      this.customizeLinkColor = true;
+    }
   },
 
   data() {
@@ -89,9 +103,12 @@ export default {
       uiLogoLight:        '',
       customizeLogo:      false,
 
-      uiColorSetting: {},
-      uiColor:        null,
-      customizeColor: false,
+      uiColorSetting:     {},
+      uiColor:            null,
+      customizeColor:     false,
+      uiLinkColorSetting: {},
+      uiLinkColor:        null,
+      customizeLinkColor: false,
 
       uiCommunitySetting: {},
 
@@ -104,6 +121,36 @@ export default {
       const schema = this.$store.getters[`management/schemaFor`](MANAGEMENT.SETTING);
 
       return schema?.resourceMethods?.includes('PUT') ? _EDIT : _VIEW;
+    },
+
+    radioOptions() {
+      const options = ['left', 'center', 'right'];
+      const labels = [
+        this.t('branding.uiBanner.bannerAlignment.leftOption'),
+        this.t('branding.uiBanner.bannerAlignment.centerOption'),
+        this.t('branding.uiBanner.bannerAlignment.rightOption'),
+      ];
+
+      return { options, labels };
+    },
+
+    textDecorationOptions() {
+      const options = [
+        {
+          style:  'fontWeight',
+          label:  this.t('branding.uiBanner.bannerDecoration.bannerBold')
+        },
+        {
+          style:  'fontStyle',
+          label:  this.t('branding.uiBanner.bannerDecoration.bannerItalic')
+        },
+        {
+          style:  'textDecoration',
+          label:  this.t('branding.uiBanner.bannerDecoration.bannerUnderline')
+        }
+      ];
+
+      return options;
     }
   },
 
@@ -121,14 +168,17 @@ export default {
 
   mounted() {
     let uiColor = getComputedStyle(document.body).getPropertyValue('--primary');
+    let uiLinkColor = getComputedStyle(document.body).getPropertyValue('--link');
     const suse = document.querySelector('.suse');
 
     if (suse) {
       uiColor = getComputedStyle(suse).getPropertyValue('--primary');
+      uiLinkColor = getComputedStyle(suse).getPropertyValue('--link');
     }
 
     // Only set the color to the default if not already set from the custom color
     this.uiColor = this.uiColor || uiColor.trim();
+    this.uiLinkColor = this.uiLinkColor || uiLinkColor.trim();
   },
 
   methods: {
@@ -199,6 +249,12 @@ export default {
         this.uiColorSetting.value = null;
       }
 
+      if (this.customizeLinkColor) {
+        this.uiLinkColorSetting.value = Color(this.uiLinkColor).rgb().string();
+      } else {
+        this.uiLinkColorSetting.value = null;
+      }
+
       this.errors = [];
 
       try {
@@ -209,6 +265,7 @@ export default {
           this.uiLogoDarkSetting.save(),
           this.uiLogoLightSetting.save(),
           this.uiColorSetting.save(),
+          this.uiLinkColorSetting.save(),
           this.uiCommunitySetting.save()
         ]);
         if (this.uiPLSetting.value !== this.vendor) {
@@ -313,6 +370,31 @@ export default {
         <ColorInput v-model="uiColor" />
       </div>
 
+      <h3 class="mt-40 mb-5 pb-0">
+        {{ t('branding.linkColor.label') }}
+      </h3>
+      <label class="text-label">
+        {{ t('branding.linkColor.tip', {}, true) }}
+      </label>
+      <div class="row mt-20">
+        <Checkbox
+          v-model="customizeLinkColor"
+          :label="t('branding.linkColor.useCustom')"
+          :mode="mode"
+        />
+      </div>
+      <div v-if="customizeLinkColor" class="row mt-20 mb-20">
+        <ColorInput
+          v-model="uiLinkColor"
+          class="col"
+        />
+        <span class="col link-example">
+          <a>
+            {{ t('branding.linkColor.example') }}
+          </a>
+        </span>
+      </div>
+
       <h3 class="mb-5 pb-5 mt-40">
         {{ t('branding.uiBanner.label') }}
       </h3>
@@ -329,8 +411,33 @@ export default {
         <div v-if="bannerVal.showHeader==='true'" class="row mb-20">
           <div class="col span-12">
             <div class="row">
-              <div class="col span-12">
+              <div class="col span-6">
                 <LabeledInput v-model="bannerVal.bannerHeader.text" :label="t('branding.uiBanner.text')" />
+              </div>
+              <div class="col span-3">
+                <RadioGroup
+                  v-model="bannerVal.bannerHeader.textAlignment"
+                  name="headerAlignment"
+                  :label="t('branding.uiBanner.bannerAlignment.label')"
+                  :options="radioOptions.options"
+                  :labels="radioOptions.labels"
+                  :mode="mode"
+                />
+              </div>
+              <div class="col span-3">
+                <h3>
+                  {{ t('branding.uiBanner.bannerDecoration.label') }}
+                </h3>
+                <div v-for="o in textDecorationOptions" :key="o.style">
+                  <Checkbox
+                    v-model="bannerVal.bannerHeader[o.style]"
+                    name="headerDecoration"
+                    class="header-decoration-checkbox"
+                    :mode="mode"
+                    :label="o.label"
+                    @input="e=>$set(bannerVal, o.style, e.toString())"
+                  />
+                </div>
               </div>
             </div>
             <div class="row mt-10">
@@ -351,8 +458,33 @@ export default {
         <div v-if="bannerVal.showFooter==='true'" class="row">
           <div class="col span-12 mt-20">
             <div class="row">
-              <div class="col span-12">
+              <div class="col span-6">
                 <LabeledInput v-model="bannerVal.bannerFooter.text" :label="t('branding.uiBanner.text')" />
+              </div>
+              <div class="col span-3">
+                <RadioGroup
+                  v-model="bannerVal.bannerFooter.textAlignment"
+                  name="footerAlignment"
+                  :label="t('branding.uiBanner.bannerAlignment.label')"
+                  :options="radioOptions.options"
+                  :labels="radioOptions.labels"
+                  :mode="mode"
+                />
+              </div>
+              <div class="col span-3">
+                <h3>
+                  {{ t('branding.uiBanner.bannerDecoration.label') }}
+                </h3>
+                <div v-for="o in textDecorationOptions" :key="o.style">
+                  <Checkbox
+                    v-model="bannerVal.bannerFooter[o.style]"
+                    name="footerAlignment"
+                    class="banner-decoration-checkbox"
+                    :mode="mode"
+                    :label="o.label"
+                    @input="e=>$set(bannerVal, o.style, e.toString())"
+                  />
+                </div>
               </div>
             </div>
             <div class="row mt-10">
@@ -377,6 +509,15 @@ export default {
 </template>
 
 <style scoped lang='scss'>
+.link-example {
+  display: flex;
+  align-content: center;
+
+  a {
+    margin: auto;
+  }
+}
+
 .logo-container {
     display: flex;
     flex-direction: column;
@@ -403,4 +544,15 @@ export default {
     }
 }
 
+.banner-decoration-checkbox {
+  position: relative;
+  display: inline-flex;
+  align-items: flex-start;
+  margin: 0;
+  cursor: pointer;
+  user-select: none;
+  border-radius: var(--border-radius);
+  padding-bottom: 5px;
+  height: 24px;
+}
 </style>

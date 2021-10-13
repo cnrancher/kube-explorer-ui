@@ -35,6 +35,7 @@ import {
   AS, _YAML, MODE, _CLONE, _EDIT, _VIEW, _UNFLAG, _CONFIG
 } from '@/config/query-params';
 
+import { SELF } from '@/plugins/steve/resource-proxy';
 import { cleanForNew, normalizeType } from './normalize';
 
 const STRING_LIKE_TYPES = [
@@ -72,8 +73,11 @@ const DEFAULT_WAIT_TMIMEOUT = 30000;
 
 export const STATES = {
   'in-progress':      { color: 'info', icon: 'tag' },
+  'in-use':           { color: 'success', icon: 'dot-open' },
   'pending-rollback': { color: 'info', icon: 'dot-half' },
   'pending-upgrade':  { color: 'info', icon: 'dot-half' },
+  'N/A':              { color: 'warning', icon: 'x' },
+  'vm-error':         { color: 'error', icon: 'dot' },
   aborted:            { color: 'warning', icon: 'error' },
   activating:         { color: 'info', icon: 'tag' },
   active:             { color: 'success', icon: 'dot-open' },
@@ -94,18 +98,23 @@ export const STATES = {
   disconnected:       { color: 'warning', icon: 'error' },
   drained:            { color: 'info', icon: 'tag' },
   draining:           { color: 'warning', icon: 'tag' },
+  downloading:        { color: 'info', icon: 'tag' },
+  enteringMaintain:   { color: 'info', icon: 'tag' },
   errapplied:         { color: 'error', icon: 'error' },
   error:              { color: 'error', icon: 'error' },
   erroring:           { color: 'error', icon: 'error' },
   errors:             { color: 'error', icon: 'error' },
   expired:            { color: 'warning', icon: 'error' },
+  exporting:          { color: 'info', icon: 'tag' },
   fail:               { color: 'error', icon: 'error' },
   failed:             { color: 'error', icon: 'error' },
   healthy:            { color: 'success', icon: 'dot-open' },
   inactive:           { color: 'error', icon: 'dot' },
   initializing:       { color: 'warning', icon: 'error' },
   inprogress:         { color: 'info', icon: 'spinner' },
+  imported:           { color: 'success', icon: 'dot-open' },
   locked:             { color: 'warning', icon: 'adjust' },
+  maintain:           { color: 'info', icon: 'tag' },
   migrating:          { color: 'info', icon: 'info' },
   missing:            { color: 'warning', icon: 'adjust' },
   modified:           { color: 'warning', icon: 'edit' },
@@ -124,6 +133,7 @@ export const STATES = {
   provisioned:        { color: 'success', icon: 'dot' },
   purged:             { color: 'error', icon: 'purged' },
   purging:            { color: 'info', icon: 'purged' },
+  progress:           { color: 'warning', icon: 'x' },
   ready:              { color: 'success', icon: 'dot-open' },
   reconnecting:       { color: 'error', icon: 'error' },
   registering:        { color: 'info', icon: 'tag' },
@@ -150,11 +160,13 @@ export const STATES = {
   uninstalling:       { color: 'info', icon: 'trash' },
   unknown:            { color: 'warning', icon: 'x' },
   untriggered:        { color: 'success', icon: 'tag' },
+  uploading:          { color: 'info', icon: 'tag' },
   updating:           { color: 'warning', icon: 'tag' },
   waitapplied:        { color: 'info', icon: 'tag' },
   waitcheckin:        { color: 'warning', icon: 'tag' },
   waiting:            { color: 'info', icon: 'tag' },
   warning:            { color: 'warning', icon: 'error' },
+  validated:          { color: 'success', icon: 'dot-open' },
 };
 
 export function getStatesByType(type = 'info') {
@@ -289,8 +301,14 @@ export default {
     };
   },
 
+  toJSON() {
+    return () => {
+      return this[SELF];
+    };
+  },
+
   description() {
-    return this.metadata?.annotations?.[DESCRIPTION] || this.spec?.description;
+    return this.metadata?.annotations?.[DESCRIPTION] || this.spec?.description || this._description;
   },
 
   labels() {
@@ -589,6 +607,16 @@ export default {
     };
   },
 
+  isSystemResource() {
+    const systemNamespaces = this.$rootGetters['systemNamespaces'];
+
+    if ( systemNamespaces.includes(this.metadata?.namespace) ) {
+      return true;
+    }
+
+    return false;
+  },
+
   isCondition() {
     return (condition, withStatus = 'True') => {
       if ( !this.status || !this.status.conditions ) {
@@ -833,6 +861,7 @@ export default {
   _save() {
     return async(opt = {}) => {
       delete this.__rehydrate;
+      delete this.__clone;
       const forNew = !this.id;
 
       const errors = await this.validationErrors(this, opt.ignoreFields);
@@ -1408,7 +1437,7 @@ export default {
             const validatorExists = Object.prototype.hasOwnProperty.call(CustomValidators, validatorName);
 
             if (!isEmpty(validatorName) && validatorExists) {
-              CustomValidators[validatorName](pathValue, this.$rootGetters, errors, validatorArgs, displayKey);
+              CustomValidators[validatorName](pathValue, this.$rootGetters, errors, validatorArgs, displayKey, data);
             } else if (!isEmpty(validatorName) && !validatorExists) {
               // eslint-disable-next-line
               console.warn(this.t('validation.custom.missing', { validatorName }));

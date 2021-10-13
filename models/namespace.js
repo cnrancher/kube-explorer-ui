@@ -1,7 +1,8 @@
 import SYSTEM_NAMESPACES from '@/config/system-namespaces';
-import { PROJECT, SYSTEM_NAMESPACE, ISTIO as ISTIO_LABELS } from '@/config/labels-annotations';
+import { PROJECT, SYSTEM_NAMESPACE, ISTIO as ISTIO_LABELS, FLEET } from '@/config/labels-annotations';
 import { ISTIO, MANAGEMENT } from '@/config/types';
 
+import { get } from '@/utils/object';
 import { escapeHtml } from '@/utils/string';
 import { insertAt, isArray } from '@/utils/array';
 
@@ -40,7 +41,7 @@ export default {
       });
     }
 
-    if (this.$rootGetters['isRancher']) {
+    if (this.$rootGetters['isRancher'] && !this.$rootGetters['isSingleVirtualCluster']) {
       insertAt(out, 0, {
         action:     'move',
         label:      this.t('namespace.move'),
@@ -81,6 +82,10 @@ export default {
     return false;
   },
 
+  isFleetManaged() {
+    return get(this, `metadata.labels."${ FLEET.MANAGED }"`) === 'true';
+  },
+
   // These are namespaces that are created by rancher to serve purposes in the background but the user shouldn't have
   // to worry themselves about them.
   isObscure() {
@@ -98,7 +103,7 @@ export default {
       return null;
     }
 
-    const clusterId = this.$rootGetters['currentCluster'].id;
+    const clusterId = this.$rootGetters['currentCluster']?.id;
     const project = this.$rootGetters['management/byId'](MANAGEMENT.PROJECT, `${ clusterId }/${ this.projectId }`);
 
     return project;
@@ -158,6 +163,10 @@ export default {
   },
 
   listLocation() {
+    if (this.$rootGetters['isSingleVirtualCluster']) {
+      return { name: 'c-cluster-product-resource' };
+    }
+
     return { name: this.$rootGetters['isRancher'] ? 'c-cluster-product-projectsnamespaces' : 'c-cluster-product-namespaces' };
   },
 

@@ -13,6 +13,7 @@ A good base knowledge of Vue, Vuex and Nuxt should be reached before going throu
 Description | Link
 -----| ---
 Core Vue Docs | https://vuejs.org/v2/guide
+Typescript in Vue | https://vuejs.org/v2/guide/typescript.html
 Vue Template/Directive Shorthands | https://vuejs.org/v2/guide/syntax.html
 Vue Conditional rendering | https://vuejs.org/v2/guide/conditional.html
 Vuex Core Docs | https://vuex.vuejs.org/
@@ -26,18 +27,25 @@ HTTP Proxy middleware | https://github.com/nuxt-community/proxy-module (https://
 The Dashboard is shipped with the Rancher package which contains the Rancher API. When developing locally the Dashboard must point to an instance of the Rancher API.
 
 ### Installing Rancher
-See https://rancher.com/docs/rancher/v2.x/en/installation/. This covers two methods confirmed to work with the Dashboard
-- [Single Docker Container](https://rancher.com/docs/rancher/v2.x/en/installation/other-installation-methods/single-node-docker/)
-- [Kube Cluster (via Helm)](https://rancher.com/docs/rancher/v2.x/en/installation/install-rancher-on-k8s/)
+See https://rancher.com/docs/rancher/v2.6/en/installation/. This covers two methods confirmed to work with the Dashboard
+- [Single Docker Container](https://rancher.com/docs/rancher/v2.6/en/installation/other-installation-methods/single-node-docker/)
+- [Kube Cluster (via Helm)](https://rancher.com/docs/rancher/v2.6/en/installation/install-rancher-on-k8s/)
 
-Also for consideration
-- [RKE in a binary (rancherd)](https://rancher.com/docs/rancher/v2.x/en/installation/install-rancher-on-linux/)
+Note that for Rancher to provision and manage downstream clusters, the Rancher server URL must be accessible from the Internet. If you’re running Rancher in Docker Desktop, the Rancher server URL is `https://localhost`. To make Rancher accessible to downstream clusters for development, you can:
+
+- Use ngrok to test provisioning with a local rancher server
+- Install Rancher on a virtual machine in Digital Ocean or Amazon EC2
+- Change the Rancher server URL using `<dashboard url>c/local/settings/management.cattle.io.setting`
+
+Also for consideration:
+- [RKE2 in a binary (rancherd)](https://rancher.com/docs/rancher/v2.5/en/installation/install-rancher-on-linux/) Note: RancherD is being rewritten as of Rancher v2.6.
+- [K3s](https://k3d.io/v4.4.8/#installation) lets you immediately install a Kubernetes cluster in a Docker container and interact with it with kubectl for development and testing purposes.
 
 You should be able to reach the older Ember UI by navigating to the Rancher API url. This same API Url will be used later when starting up the Dashboard.
 
 ### Uninstalling Rancher
 - Docker - This should be a simple `docker stop` & `docker rm`
-- Kube Cluster -  Use `helm delete` as usual and then the `remove` command from [System Tools](https://rancher.com/docs/rancher/v2.x/en/system-tools/) client 
+- Kube Cluster -  Use `helm delete` as usual and then the `remove` command from [System Tools](https://rancher.com/docs/rancher/v2.6/en/system-tools/) client 
 
 
 ## Environment
@@ -46,11 +54,12 @@ Developers are free to use the IDE and modern browser of their choosing. Here's 
 
 ### VS Code
 - Install the `vetur` extension. This contains syntax highlighting, IntelliSense, snippets, formatting, etc)
+- Install the `ESLint` extension to underline linting issues. It can also be used to auto-fix errors on save by using **Command + Shift + P > ESLint: Fix all auto-fixable Problems.**
 
 ### Chrome
 - Install the Chrome `vue-devtools` extension to view the Vuex store.
   
-  > This can consume a lot of the host's resources. It's recommended to pause Vuex history (nav to Vue tab in DevTools and toggle the `Recording` button top right of the history section)
+  > This can consume a lot of the host's resources. It's recommended to pause Vuex history (nav to Vue tab in DevTools and toggle the `Recording` button top right of the history section). Vue devtools will record each mutation, so it's strongly recommended to disable recording early on in debugging, before logging into Rancher. Recording Vuex can then be manually toggled on an as-needed basis to safely investigate shared state
 
 ## Running / Debugging Dashboard
 
@@ -83,8 +92,24 @@ Due to the way Dashboard resources are constructed examining the contents of one
 > A These are part of the common underlying `resource-instance.js` or, if the resource type has it, the type's own `model`.
 
 ### Exploring the API
-The API serves up an interface to [browse both Norman and Steve API's](https://github.com/rancher/api-ui). Both will list supported schema's and allow the user to fetch individual or collections of resources. The schema's will describe the actions executable against individual or collections of resource. For Norman it will also show fields that can be filtered on.
+The API serves up an interface to [browse both Norman and Steve APIs](https://github.com/rancher/api-ui). Both will list supported schemas and allow the user to fetch individual or collections of resources. The schemas will describe the actions executable against individual or collections of resource. For Norman it will also show fields that can be filtered on.
 
 The dashboard will proxy requests to the API, so the interfaces are available via `<Dashboard URL>/v3` (Norman) and `<Dashboard URL>/v1` (Steve)
 
+### Debug Output for kubectl
 
+You can increase the verbosity level of kubectl to see the actual HTTP requests that it makes to the Kubernetes API, including the request and response bodies. For example, to see the request and response for rolling back a workload, you could run:
+
+```
+kubectl rollout undo deployment/[deployment name] --to-revision=[revision number] -v=8
+```
+
+### GitHub CLI
+
+When reviewing a pull request, it can be useful to pull down someone's PR using the GitHub CLI. For example:
+
+```
+gh pr checkout 4284
+```
+
+The GitHub CLI installation instructions are [here.](https://github.com/cli/cli#installation)

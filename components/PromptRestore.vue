@@ -37,6 +37,12 @@ export default {
     };
   },
 
+  mounted() {
+    const cluster = this.$store.getters['management/byId'](CAPI.RANCHER_CLUSTER, this.snapshot?.clusterId);
+
+    this.cloudCredentialName = cluster?.spec?.rkeConfig?.etcd?.s3?.cloudCredentialName;
+  },
+
   computed:   {
     ...mapState('action-menu', ['showPromptRestore', 'toRestore']),
     ...mapGetters({ t: 'i18n/t' }),
@@ -63,12 +69,6 @@ export default {
     }
   },
 
-  mounted() {
-    const cluster = this.$store.getters['management/byId'](CAPI.RANCHER_CLUSTER, this.snapshot?.clusterId);
-
-    this.cloudCredentialName = cluster?.spec?.rkeConfig?.etcd?.s3?.cloudCredentialName;
-  },
-
   methods: {
     close() {
       this.errors = [];
@@ -83,7 +83,7 @@ export default {
 
           await this.applyHooks(BEFORE_SAVE_HOOKS);
 
-          const now = cluster.spec?.rkeConfig?.etcSnapshotRestore || 0;
+          const now = cluster.spec?.rkeConfig?.etcdSnapshotRestore?.generation || 0;
 
           let s3; //  = undefined;
 

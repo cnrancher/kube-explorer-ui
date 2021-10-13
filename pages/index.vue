@@ -4,12 +4,13 @@
 import { NAME as EXPLORER } from '@/config/product/explorer';
 
 export default {
-  // middleware({ redirect, store, route } ) {
+  // middleware({ redirect, store } ) {
   //   const seenWhatsNew = store.getters['prefs/get'](SEEN_WHATS_NEW);
   //   const versionInfo = getVersionInfo(store);
+  //   const isSingleVirtualCluster = store.getters['isSingleVirtualCluster'];
 
   //   // If this is a new version, then take the user to the home page to view the release notes
-  //   if (versionInfo.fullVersion !== seenWhatsNew) {
+  //   if (versionInfo.fullVersion !== seenWhatsNew && !isSingleVirtualCluster) {
   //     return redirect({ name: 'home' });
   //   }
 

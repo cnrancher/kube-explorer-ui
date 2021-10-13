@@ -1,5 +1,5 @@
 <script>
-import { TYPES } from '@/models/secret';
+import { TYPES } from '@/models/secret.class';
 import { MANAGEMENT, NAMESPACE } from '@/config/types';
 import CreateEditView from '@/mixins/create-edit-view';
 import NameNsDescription from '@/components/form/NameNsDescription';
@@ -143,7 +143,9 @@ export default {
           out.push({
             id,
             label:       this.typeDisplay(id),
-            bannerAbbrv: this.initialDisplayFor(id)
+            bannerAbbrv: this.initialDisplayFor(id),
+            description: this.t(`secret.typeDescriptions.'${ id }'.description`),
+            docLink:     this.t(`secret.typeDescriptions.'${ id }'.docLink`)
           });
         }
       }

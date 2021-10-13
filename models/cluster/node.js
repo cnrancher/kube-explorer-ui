@@ -4,7 +4,6 @@ import {
   CAPI, MANAGEMENT, METRIC, NORMAN, POD
 } from '@/config/types';
 import { parseSi } from '@/utils/units';
-import { PRIVATE } from '@/plugins/steve/resource-proxy';
 import findLast from 'lodash/findLast';
 
 export const listNodeRoles = (isControlPlane, isWorker, isEtcd, allString) => {
@@ -326,7 +325,8 @@ export default {
     if (this.drainedState) {
       return this.drainedState;
     }
-    if ( !this[PRIVATE].isDetailPage && this.isCordoned ) {
+
+    if ( this.isCordoned ) {
       return 'cordoned';
     }
 
@@ -385,6 +385,17 @@ export default {
 
   canClone() {
     return false;
+  },
+
+  canDelete() {
+    const provider = this.$rootGetters['currentCluster'].provisioner.toLowerCase();
+    const cloudProviders = [
+      'aks', 'azureaks', 'azurekubernetesservice',
+      'eks', 'amazoneks',
+      'gke', 'googlegke'
+    ];
+
+    return !cloudProviders.includes(provider);
   },
 
   // You need to preload CAPI.MACHINEs to use this

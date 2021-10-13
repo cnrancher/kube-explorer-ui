@@ -28,6 +28,7 @@ import PodAffinity from '@/components/form/PodAffinity';
 import Tolerations from '@/components/form/Tolerations';
 import CruResource from '@/components/CruResource';
 import Command from '@/components/form/Command';
+import LifecycleHooks from '@/components/form/LifecycleHooks';
 import Storage from '@/edit/workload/storage';
 import Labels from '@/components/form/Labels';
 import RadioGroup from '@/components/form/RadioGroup';
@@ -56,6 +57,7 @@ export default {
     Tolerations,
     CruResource,
     Command,
+    LifecycleHooks,
     Storage,
     VolumeClaimTemplate,
     Labels,
@@ -156,6 +158,7 @@ export default {
       isInitContainer,
       container,
       containerChange:   0,
+      podFsGroup:        podTemplateSpec.securityContext?.fsGroup
     };
   },
 
@@ -531,6 +534,7 @@ export default {
       this.fixNodeAffinity(nodeAffinity);
       this.fixPodAffinity(podAffinity);
       this.fixPodAffinity(podAntiAffinity);
+      this.fixPodSecurityContext(this.podTemplateSpec);
 
       // delete this.value.kind;
       if (this.container && !this.container.name) {
@@ -607,6 +611,20 @@ export default {
       });
 
       return podAffinity;
+    },
+
+    fixPodSecurityContext(podTempSpec) {
+      if (this.podFsGroup) {
+        podTempSpec.securityContext = podTempSpec.securityContext || {};
+        podTempSpec.securityContext.fsGroup = this.podFsGroup;
+      } else {
+        if (podTempSpec.securityContext?.fsGroup) {
+          delete podTempSpec.securityContext.fsGroup;
+        }
+        if (Object.keys(podTempSpec.securityContext || {}).length === 0) {
+          delete podTempSpec.securityContext;
+        }
+      }
     },
 
     selectType(type) {
@@ -816,6 +834,12 @@ export default {
             <h3>{{ t('workload.container.titles.command') }}</h3>
             <Command v-model="container" :secrets="namespacedSecrets" :config-maps="namespacedConfigMaps" :mode="mode" />
           </div>
+
+          <div class="spacer"></div>
+          <div>
+            <h3>{{ t('workload.container.titles.lifecycle') }}</h3>
+            <LifecycleHooks v-model="container.lifecycle" :mode="mode" />
+          </div>
         </Tab>
         <Tab :label="t('workload.storage.title')" name="storage">
           <Storage
@@ -875,6 +899,15 @@ export default {
         </Tab>
         <Tab :label="t('workload.container.titles.securityContext')" name="securityContext">
           <Security v-model="container.securityContext" :mode="mode" />
+          <div class="spacer"></div>
+          <div>
+            <h3>{{ t('workload.container.security.podFsGroup') }}</h3>
+            <div class="row">
+              <div class="col span-6">
+                <LabeledInput v-model.number="podFsGroup" type="number" :mode="mode" :label="t('workload.container.security.fsGroup')" />
+              </div>
+            </div>
+          </div>
         </Tab>
         <Tab :label="t('workload.container.titles.networking')" name="networking">
           <Networking v-model="podTemplateSpec" :mode="mode" />

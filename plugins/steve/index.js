@@ -21,16 +21,17 @@ function SteveFactory(namespace, baseUrl) {
       return {
         config: {
           baseUrl,
-          namespace
+          namespace,
         },
-        types:        {},
-        socket:       null,
-        queue:        [],
-        wantSocket:   false,
-        debugSocket:  false,
-        pendingSends: [],
-        started:      [],
-        inError:      {},
+        types:            {},
+        socket:           null,
+        queue:            [], // For change event coalescing
+        wantSocket:       false,
+        debugSocket:      false,
+        pendingFrames:    [],
+        deferredRequests: {},
+        started:          [],
+        inError:          {},
       };
     },
 

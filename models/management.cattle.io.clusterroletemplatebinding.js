@@ -10,6 +10,7 @@ export default {
       }
     };
   },
+
   canCustomEdit() {
     return false;
   },
@@ -42,7 +43,7 @@ export default {
   },
 
   nameDisplay() {
-    return this.user?.nameDisplay;
+    return this.user?.nameDisplay || this.userName || this.principalId;
   },
 
   roleDisplay() {
@@ -82,7 +83,7 @@ export default {
   },
 
   listLocation() {
-    return { name: 'c-cluster-explorer-members' };
+    return { name: 'c-cluster-product-members' };
   },
 
   doneOverride() {

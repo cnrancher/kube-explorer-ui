@@ -4,11 +4,14 @@ import Loading from '@/components/Loading';
 import Tag from '@/components/Tag';
 import Banner from '@/components/Banner';
 import {
-  STATE, NAME, ROLES, VERSION, INTERNAL_EXTERNAL_IP, CPU, RAM, PODS, AGE
+  STATE, NAME, ROLES, VERSION, INTERNAL_EXTERNAL_IP, CPU, RAM, PODS, AGE, KUBE_NODE_OS
 } from '@/config/table-headers';
 import metricPoller from '@/mixins/metric-poller';
 
-import { CAPI, METRIC, NODE, POD } from '@/config/types';
+import {
+  CAPI,
+  /* MANAGEMENT, */METRIC, NODE/*, NORMAN */, POD
+} from '@/config/types';
 import { allHash } from '@/utils/promise';
 import { get } from '@/utils/object';
 import { GROUP_RESOURCES, mapPref } from '@/store/prefs';
@@ -74,13 +77,23 @@ export default {
     tableGroup: mapPref(GROUP_RESOURCES),
 
     headers() {
-      const headers = [STATE, NAME, ROLES, VERSION, INTERNAL_EXTERNAL_IP, {
-        ...CPU,
-        breakpoint: COLUMN_BREAKPOINTS.LAPTOP
-      }, {
-        ...RAM,
-        breakpoint: COLUMN_BREAKPOINTS.LAPTOP
-      }];
+      const headers = [
+        STATE,
+        NAME,
+        ROLES,
+        VERSION,
+        INTERNAL_EXTERNAL_IP,
+        {
+          ...KUBE_NODE_OS,
+          breakpoint: COLUMN_BREAKPOINTS.LAPTOP
+        },
+        {
+          ...CPU,
+          breakpoint: COLUMN_BREAKPOINTS.LAPTOP
+        }, {
+          ...RAM,
+          breakpoint: COLUMN_BREAKPOINTS.LAPTOP
+        }];
 
       if (this.canViewPods) {
         headers.push({

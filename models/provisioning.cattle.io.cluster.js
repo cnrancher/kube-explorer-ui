@@ -1,11 +1,11 @@
 import { CAPI, MANAGEMENT, NORMAN } from '@/config/types';
 import { proxyFor } from '@/plugins/steve/resource-proxy';
 import { findBy, insertAt } from '@/utils/array';
-import { set } from '@/utils/object';
+import { set, get } from '@/utils/object';
 import { sortBy } from '@/utils/sort';
 import { ucFirst } from '@/utils/string';
 import { compare } from '@/utils/version';
-import { AS, MODE, _EDIT, _YAML } from '~/config/query-params';
+import { AS, MODE, _EDIT, _YAML } from '@/config/query-params';
 
 export const DEFAULT_WORKSPACE = 'fleet-default';
 
@@ -33,6 +33,15 @@ export default {
     }
 
     return out;
+  },
+
+  availableActions() {
+    // No actions for Harvester clusters
+    if (this.isHarvester) {
+      return [];
+    }
+
+    return this._availableActions;
   },
 
   _availableActions() {
@@ -153,6 +162,10 @@ export default {
 
   isRke1() {
     return !!this.mgmt?.spec?.rancherKubernetesEngineConfig;
+  },
+
+  isHarvester() {
+    return !!this.mgmt?.isHarvester;
   },
 
   mgmtClusterId() {
@@ -502,6 +515,19 @@ export default {
   },
 
   stateObj() {
+    if ( this.isHarvester) {
+      return {
+        error:         true,
+        message:       this.$rootGetters['i18n/t']('cluster.harvester.warning.label'),
+        name:          this.$rootGetters['i18n/t']('cluster.harvester.warning.state'),
+        transitioning: false
+      };
+    }
+
+    return this._stateObj;
+  },
+
+  _stateObj() {
     if (!this.isRke2) {
       return this.mgmt?.stateObj || this.metadata?.state;
     }
@@ -543,5 +569,49 @@ export default {
 
   canClone() {
     return false;
+  },
+
+  remove() {
+    return async(opt = {}) => {
+      if ( !opt.url ) {
+        opt.url = (this.links || {})['self'];
+      }
+
+      opt.method = 'delete';
+
+      const res = await this.$dispatch('request', opt);
+
+      const pool = (this.spec?.rkeConfig?.machinePools || [])[0];
+
+      if (pool?.machineConfigRef?.kind === 'HarvesterConfig') {
+        const cloudCredentialSecretName = this.spec.cloudCredentialSecretName;
+
+        await this.$dispatch('rancher/findAll', { type: NORMAN.CLOUD_CREDENTIAL }, { root: true });
+
+        const credential = this.$rootGetters['rancher/byId'](NORMAN.CLOUD_CREDENTIAL, cloudCredentialSecretName);
+
+        if (credential) {
+          const harvesterClusterId = get(credential, 'decodedData.clusterId');
+
+          try {
+            const poolConfig = await this.$dispatch('management/find', {
+              type: `${ CAPI.MACHINE_CONFIG_GROUP }.${ (pool?.machineConfigRef?.kind || '').toLowerCase() }`,
+              id:   `${ this.metadata.namespace }/${ pool?.machineConfigRef?.name }`,
+            }, { root: true });
+
+            await this.$dispatch('management/request', {
+              url:                  `/k8s/clusters/${ harvesterClusterId }/v1/harvester/serviceaccounts/${ poolConfig.vmNamespace }/${ this.metadata.name }`,
+              method:               'DELETE',
+            }, { root: true });
+          } catch (e) {
+            console.error(e); // eslint-disable-line no-console
+          }
+        }
+      }
+
+      if ( res?._status === 204 ) {
+        await this.$dispatch('ws.resource.remove', { data: this });
+      }
+    };
   },
 };
