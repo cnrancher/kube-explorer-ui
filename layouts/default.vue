@@ -595,9 +595,9 @@ export default {
             </v-popover>
           </span>
         </div>
-        <div v-else class="version text-muted">
+        <!-- <div v-else class="version text-muted">
           {{ displayVersion }}
-        </div>
+        </div> -->
       </nav>
       <main v-if="clusterReady">
         <nuxt class="outlet" />
