@@ -1,12 +1,7 @@
 ---
 kind: pipeline
-name: test
-
-trigger:
-  event:
-  - push
-  - pull_request
-  - tag
+type: docker
+name: default
 
 platform:
   os: linux
@@ -19,30 +14,19 @@ steps:
   commands:
   - scripts/ci
 
-node:
-  instance: agent-amd64
+  when:
+    event:
+    - pull_request
 
----
-kind: pipeline
-name: embedded-tag
-
-depends_on:
-- test
-
-trigger:
-  event:
-  - tag
-
-platform:
-  os: linux
-  arch: amd64
-
-steps:
 - name: build
   pull: default
   image: node:12
   commands:
   - ./scripts/build-embedded
+
+  when:
+    event:
+    - tag
 
 - name: upload
   pull: default
@@ -58,6 +42,10 @@ steps:
     source: dist/${DRONE_TAG}.tar.gz
     strip_prefix: dist/
     target: ${DRONE_BRANCH}/kube-explorer-ui
+
+  when:
+    event:
+    - tag
 
 node:
   instance: agent-amd64
