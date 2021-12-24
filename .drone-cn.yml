@@ -48,7 +48,7 @@ steps:
   pull: default
   image: plugins/s3
   settings:
-    bucket: rancher-dashboard-ui
+    bucket: pandaria-dashboard-ui
     region: ap-southeast-2
     acl: public-read
     access_key:
