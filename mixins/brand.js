@@ -79,59 +79,7 @@ export default {
     }
   },
   head() {
-    let out = {};
-    let cssClass = `overflow-hidden dashboard-body`;
-
-    let brandMeta;
-
-    if (getVendor() === 'Harvester') {
-      const ico = require(`~/assets/images/pl/harvester.png`);
-
-      out = {
-        title: 'Harvester',
-        link:      [{
-          hid:  'icon',
-          rel:  'icon',
-          type: 'image/x-icon',
-          href: ico
-        }],
-      };
-    }
-
-    try {
-      brandMeta = require(`~/assets/brand/${ this.brand }/metadata.json`);
-    } catch {
-      let title = getVendor();
-
-      if (process.client) {
-        const m = window.location.pathname.match(/\/proxy\/explorer\/([^/]+)\//);
-
-        if (m?.length === 2) {
-          const t = m[1]?.split('.')[0];
-
-          if (t) {
-            title = t;
-          }
-        }
-      }
-
-      out = {
-        bodyAttrs: { class: `theme-${ this.theme } ${ cssClass }` },
-        title,
-        ...out,
-      };
-
-      return out;
-    }
-
-    if (brandMeta?.hasStylesheet === 'true') {
-      cssClass = `${ cssClass } ${ this.brand } theme-${ this.theme }`;
-    } else {
-      cssClass = `theme-${ this.theme } overflow-hidden dashboard-body`;
-      this.$store.dispatch('prefs/setBrandStyle', this.theme === 'dark');
-    }
-
-    let title = this.$store.getters['i18n/t']('nav.title');
+    let title = getVendor();
 
     if (process.client) {
       const m = window.location.pathname.match(/\/proxy\/explorer\/([^/]+)\//);
@@ -145,11 +93,42 @@ export default {
       }
     }
 
-    out = {
-      bodyAttrs: { class: cssClass },
+    let cssClass = `overflow-hidden dashboard-body`;
+    const out = {
+      bodyAttrs: { class: `theme-${ this.theme } ${ cssClass }` },
       title,
-      ...out,
     };
+
+    if (getVendor() === 'Harvester') {
+      const ico = require(`~/assets/images/pl/harvester.png`);
+
+      out.title = 'Harvester';
+      out.link = [{
+        hid:  'icon',
+        rel:  'icon',
+        type: 'image/x-icon',
+        href: ico
+      }];
+    }
+
+    let brandMeta;
+
+    if ( this.brand ) {
+      try {
+        brandMeta = require(`~/assets/brand/${ this.brand }/metadata.json`);
+      } catch {
+        return out;
+      }
+    }
+
+    if (brandMeta?.hasStylesheet === 'true') {
+      cssClass = `${ cssClass } ${ this.brand } theme-${ this.theme }`;
+    } else {
+      cssClass = `theme-${ this.theme } overflow-hidden dashboard-body`;
+      this.$store.dispatch('prefs/setBrandStyle', this.theme === 'dark');
+    }
+
+    out.bodyAttrs.class = cssClass;
 
     return out;
   },

@@ -14,6 +14,7 @@ import { _ALL_IF_AUTHED } from '@/plugins/steve/actions';
 import { isDevBuild } from '@/utils/version';
 import { exceptionToErrorsArray } from '@/utils/error';
 import Password from '@/components/form/Password';
+import { applyProducts } from '@/store/type-map';
 
 const calcIsFirstLogin = (store) => {
   const firstLoginSetting = store.getters['management/byId'](MANAGEMENT.SETTING, SETTING.FIRST_LOGIN);
@@ -105,6 +106,8 @@ export default {
       setVendor(plSetting.value);
     }
 
+    const productName = plSetting.default === 'Harvester' ? 'Harvester' : 'Rancher';
+
     const principals = await store.dispatch('rancher/findAll', { type: NORMAN.PRINCIPAL, opt: { url: '/v3/principals' } });
     const me = findBy(principals, 'me', true);
 
@@ -131,6 +134,7 @@ export default {
     const mustChangePassword = await calcMustChangePassword(store);
 
     return {
+      productName,
       vendor:            getVendor(),
       product:           getProduct(),
       step:              parseInt(route.query.step, 10) || 1,
@@ -183,7 +187,7 @@ export default {
       const out = findBy(this.principals, 'me', true);
 
       return out;
-    },
+    }
   },
 
   watch: {
@@ -204,6 +208,7 @@ export default {
       const promises = [];
 
       try {
+        await applyProducts(this.$store);
         await this.$store.dispatch('loadManagement');
 
         if ( this.mustChangePassword ) {
@@ -331,8 +336,12 @@ export default {
             <div class="checkbox mt-40">
               <Checkbox v-model="telemetry" label-key="setup.telemetry" />
             </div>
-            <div class="checkbox pt-10 eula">
-              <Checkbox v-model="eula" label-key="setup.eula" />
+            <div class="checkbox pt-10">
+              <Checkbox v-model="eula">
+                <template #label>
+                  <t k="setup.eula" :raw="true" :name="productName" />
+                </template>
+              </Checkbox>
             </div>
           </template>
 
@@ -408,14 +417,6 @@ export default {
       line-height: 20px;
     }
 
-    .eula {
-      align-items: center;
-      display: flex;
-
-      span {
-        margin-left: 5px;
-      }
-    }
   }
 
   .landscape {

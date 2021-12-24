@@ -5,7 +5,7 @@ import { allHash, allHashSettled } from '@/utils/promise';
 import { clone } from '@/utils/object';
 import { findBy, addObject, filterBy } from '@/utils/array';
 import { stringify } from '@/utils/error';
-import { proxyFor } from '@/plugins/steve/resource-proxy';
+import { classify } from '@/plugins/steve/classify';
 import { sortBy } from '@/utils/sort';
 import { importChart } from '@/utils/dynamic-importer';
 import { ensureRegex } from '@/utils/string';
@@ -431,7 +431,7 @@ export const actions = {
 
     Object.entries(state.charts).forEach(([key, chart]) => {
       if (chart.__rehydrate) {
-        charts[key] = proxyFor(ctx, chart);
+        charts[key] = classify(ctx, chart);
       }
     });
     commit('setCharts', {
@@ -487,7 +487,7 @@ function addChart(ctx, map, chart, repo) {
 
   if ( !obj ) {
     if ( ctx ) { }
-    obj = proxyFor(ctx, {
+    obj = classify(ctx, {
       key,
       type:             'chart',
       id:               key,
@@ -575,7 +575,7 @@ export function compatibleVersionsFor(versions, os, includePrerelease = true) {
       return false;
     }
 
-    if (!osAnnotation || osAnnotation === os) {
+    if (!osAnnotation || !os || osAnnotation === os) {
       return true;
     }
 
@@ -584,7 +584,7 @@ export function compatibleVersionsFor(versions, os, includePrerelease = true) {
 }
 
 export function filterAndArrangeCharts(charts, {
-  isWindows = false,
+  os,
   category,
   searchQuery,
   showDeprecated = false,
@@ -608,11 +608,8 @@ export function filterAndArrangeCharts(charts, {
       return false;
     }
 
-    if ( isWindows && compatibleVersionsFor(chartVersions, 'windows', showPrerelease).length <= 0) {
-      // There's no versions compatible with Windows
-      return false;
-    } else if ( !isWindows && compatibleVersionsFor(chartVersions, 'linux', showPrerelease).length <= 0) {
-      // There's no versions compatible with Linux
+    if (compatibleVersionsFor(chartVersions, os, showPrerelease).length <= 0) {
+      // There's no versions compatible with the specified os
       return false;
     }
 

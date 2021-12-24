@@ -173,6 +173,15 @@ export default {
       default: false
     },
 
+    overflowX: {
+      type:    Boolean,
+      default: false
+    },
+    overflowY: {
+      type:    Boolean,
+      default: false
+    },
+
     /**
      * If pagination of the data is enabled or not
      */
@@ -391,12 +400,15 @@ export default {
     classObject() {
       return {
         'top-divider':     this.topDivider,
-        'body-dividers':   this.bodyDividers
+        'body-dividers':   this.bodyDividers,
+        'overflow-y':      this.overflowY,
+        'overflow-x':      this.overflowX,
       };
     }
   },
 
   methods: {
+
     get,
     dasherize,
 
@@ -419,6 +431,25 @@ export default {
       }
 
       return out;
+    },
+
+    /**
+     * Format values to render in the sorted table
+     * In the absence of predefined formatter table would use this
+     *
+     * @param {Object} row
+     * @param {Object} col
+     *
+     * @return {String}
+     */
+    formatValue(row, col) {
+      const valFor = this.valueFor(row, col);
+
+      if ( Array.isArray(valFor) ) {
+        return valFor.join(', ');
+      }
+
+      return valFor;
     },
 
     isExpanded(row) {
@@ -656,7 +687,7 @@ export default {
                       :key="col.name"
                       :data-title="labelFor(col)"
                       :align="col.align || 'left'"
-                      :class="{['col-'+dasherize(col.formatter||'')]: !!col.formatter, [col.breakpoint]: !!col.breakpoint}"
+                      :class="{['col-'+dasherize(col.formatter||'')]: !!col.formatter, [col.breakpoint]: !!col.breakpoint, ['skip-select']: col.skipSelect}"
                       :width="col.width"
                     >
                       <slot :name="'cell:' + col.name" :row="row" :col="col" :value="valueFor(row,col)">
@@ -667,9 +698,10 @@ export default {
                           :row="row"
                           :col="col"
                           v-bind="col.formatterOpts"
+                          :row-key="get(row,keyField)"
                         />
                         <template v-else-if="valueFor(row,col) !== ''">
-                          {{ valueFor(row,col) }}
+                          {{ formatValue(row,col) }}
                         </template>
                         <template v-else-if="col.dashIfEmpty">
                           <span class="text-muted">&mdash;</span>
@@ -812,6 +844,13 @@ $spacing: 10px;
   background: var(--sortable-table-bg);
   border-radius: 4px;
 
+  &.overflow-x {
+    overflow-x: visible;
+  }
+  &.overflow-y {
+    overflow-y: visible;
+  }
+
   td {
     padding: 8px 5px;
     border: 0;
@@ -846,6 +885,7 @@ $spacing: 10px;
       &.state-description > td {
         font-size: 13px;
         padding-top: 0;
+        overflow-wrap: anywhere;
       }
     }
 

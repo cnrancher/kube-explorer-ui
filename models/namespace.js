@@ -1,10 +1,14 @@
 import SYSTEM_NAMESPACES from '@/config/system-namespaces';
-import { PROJECT, SYSTEM_NAMESPACE, ISTIO as ISTIO_LABELS, FLEET } from '@/config/labels-annotations';
+import {
+  PROJECT, SYSTEM_NAMESPACE, ISTIO as ISTIO_LABELS, FLEET, RESOURCE_QUOTA
+} from '@/config/labels-annotations';
 import { ISTIO, MANAGEMENT } from '@/config/types';
 
-import { get } from '@/utils/object';
+import { get, set } from '@/utils/object';
 import { escapeHtml } from '@/utils/string';
 import { insertAt, isArray } from '@/utils/array';
+import SteveModel from '@/plugins/steve/steve-class';
+import Vue from 'vue';
 
 const OBSCURE_NAMESPACE_PREFIX = [
   'c-', // cluster namesapce
@@ -13,10 +17,13 @@ const OBSCURE_NAMESPACE_PREFIX = [
   'local', // local namespace
 ];
 
-export default {
+export default class Namespace extends SteveModel {
+  applyDefaults() {
+    set(this, 'disableOpenApiValidation', false);
+  }
 
-  _availableActions() {
-    const out = [...this._standardActions];
+  get _availableActions() {
+    const out = super._availableActions;
 
     insertAt(out, 0, { divider: true });
     if (this.istioInstalled) {
@@ -54,15 +61,13 @@ export default {
     }
 
     return out;
-  },
+  }
 
-  move() {
-    return (resources = this) => {
-      this.$dispatch('promptMove', resources);
-    };
-  },
+  move(resources = this) {
+    this.$dispatch('promptMove', resources);
+  }
 
-  isSystem() {
+  get isSystem() {
     if ( this.metadata?.annotations?.[SYSTEM_NAMESPACE] === 'true' ) {
       return true;
     }
@@ -80,25 +85,25 @@ export default {
     }
 
     return false;
-  },
+  }
 
-  isFleetManaged() {
+  get isFleetManaged() {
     return get(this, `metadata.labels."${ FLEET.MANAGED }"`) === 'true';
-  },
+  }
 
   // These are namespaces that are created by rancher to serve purposes in the background but the user shouldn't have
   // to worry themselves about them.
-  isObscure() {
+  get isObscure() {
     return OBSCURE_NAMESPACE_PREFIX.some(prefix => this.metadata.name.startsWith(prefix)) && this.isSystem;
-  },
+  }
 
-  projectId() {
+  get projectId() {
     const projectAnnotation = this.metadata?.annotations?.[PROJECT] || '';
 
     return projectAnnotation.split(':')[1] || null;
-  },
+  }
 
-  project() {
+  get project() {
     if ( !this.projectId || !this.$rootGetters['isRancher'] ) {
       return null;
     }
@@ -107,9 +112,9 @@ export default {
     const project = this.$rootGetters['management/byId'](MANAGEMENT.PROJECT, `${ clusterId }/${ this.projectId }`);
 
     return project;
-  },
+  }
 
-  groupByLabel() {
+  get groupByLabel() {
     const name = this.project?.nameDisplay;
 
     if ( name ) {
@@ -117,64 +122,68 @@ export default {
     } else {
       return this.$rootGetters['i18n/t']('resourceTable.groupLabel.notInAProject');
     }
-  },
+  }
 
-  projectNameSort() {
+  get projectNameSort() {
     return this.project?.nameSort || '';
-  },
+  }
 
-  istioInstalled() {
+  get istioInstalled() {
     const schema = this.$rootGetters['cluster/schemaFor'](ISTIO.GATEWAY);
 
     return !!schema;
-  },
+  }
 
-  injectionEnabled() {
+  get injectionEnabled() {
     return this.labels[ISTIO_LABELS.AUTO_INJECTION] === 'enabled';
-  },
+  }
 
-  enableAutoInjection() {
-    return (namespaces = this, enable = true) => {
-      if (!isArray(namespaces)) {
-        namespaces = [namespaces];
-      }
-      namespaces.forEach((ns) => {
-        if (!enable && ns?.metadata?.labels) {
-          delete ns.metadata.labels[ISTIO_LABELS.AUTO_INJECTION];
-        } else {
-          if (!ns.metadata.labels) {
-            ns.metadata.labels = {};
-          }
-          ns.metadata.labels[ISTIO_LABELS.AUTO_INJECTION] = 'enabled';
+  enableAutoInjection(namespaces = this, enable = true) {
+    if (!isArray(namespaces)) {
+      namespaces = [namespaces];
+    }
+    namespaces.forEach((ns) => {
+      if (!enable && ns?.metadata?.labels) {
+        delete ns.metadata.labels[ISTIO_LABELS.AUTO_INJECTION];
+      } else {
+        if (!ns.metadata.labels) {
+          ns.metadata.labels = {};
         }
-        ns.save();
-      });
-    };
-  },
+        ns.metadata.labels[ISTIO_LABELS.AUTO_INJECTION] = 'enabled';
+      }
+      ns.save();
+    });
+  }
 
-  disableAutoInjection() {
-    return (namespaces = this) => {
-      this.enableAutoInjection(namespaces, false);
-    };
-  },
+  disableAutoInjection(namespaces = this) {
+    this.enableAutoInjection(namespaces, false);
+  }
 
-  confirmRemove() {
+  get confirmRemove() {
     return true;
-  },
+  }
 
-  listLocation() {
+  get listLocation() {
     if (this.$rootGetters['isSingleVirtualCluster']) {
       return { name: 'c-cluster-product-resource' };
     }
 
     return { name: this.$rootGetters['isRancher'] ? 'c-cluster-product-projectsnamespaces' : 'c-cluster-product-namespaces' };
-  },
+  }
 
-  parentLocationOverride() {
-    return this.listLocation;
-  },
-
-  doneOverride() {
+  get parentLocationOverride() {
     return this.listLocation;
   }
-};
+
+  get doneOverride() {
+    return this.listLocation;
+  }
+
+  get resourceQuota() {
+    return JSON.parse(this.metadata.annotations[RESOURCE_QUOTA] || `{"limit":{}}`);
+  }
+
+  set resourceQuota(value) {
+    Vue.set(this.metadata.annotations, RESOURCE_QUOTA, JSON.stringify(value));
+  }
+}

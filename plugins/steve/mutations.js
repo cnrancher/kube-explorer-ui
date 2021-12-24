@@ -1,9 +1,9 @@
 import Vue from 'vue';
 import { addObject, addObjects, clear, removeObject } from '@/utils/array';
 import { SCHEMA } from '@/config/types';
-import { Resource } from '@/plugins/steve/resource-class';
+import HybridModel, { cleanHybridResources } from '@/plugins/steve/hybrid-class';
 import { normalizeType, KEY_FIELD_FOR } from './normalize';
-import { proxyFor, remapSpecialKeys } from './resource-proxy';
+import { classify } from './classify';
 import { keyForSubscribe } from './subscribe';
 
 function registerType(state, type) {
@@ -50,12 +50,14 @@ function load(state, { data, ctx, existing }) {
   let entry;
 
   function replace(existing, data) {
-    for ( const k of Object.keys(existing) ) {
-      delete existing[k];
+    const typeSuperClass = Object.getPrototypeOf(Object.getPrototypeOf(existing)).constructor;
+
+    if (typeSuperClass === HybridModel) {
+      data = cleanHybridResources(data);
     }
 
-    if ( !(existing instanceof Resource) ) {
-      remapSpecialKeys(data);
+    for ( const k of Object.keys(existing) ) {
+      delete existing[k];
     }
 
     for ( const k of Object.keys(data) ) {
@@ -81,7 +83,7 @@ function load(state, { data, ctx, existing }) {
       // console.log('### Mutation Updated', type, id);
     } else {
       // There's no entry, make a new proxy
-      entry = proxyFor(ctx, data);
+      entry = classify(ctx, data);
       addObject(cache.list, entry);
       cache.map.set(id, entry);
       // console.log('### Mutation', type, id);
@@ -126,7 +128,7 @@ export default {
   },
 
   loadMulti(state, { data, ctx }) {
-    // console.log('### Mutation loadMulti', data.length);
+    // console.log('### Mutation loadMulti', data?.length);
     for ( const entry of data ) {
       load(state, { data: entry, ctx });
     }
@@ -150,7 +152,7 @@ export default {
     }
 
     const keyField = KEY_FIELD_FOR[type] || KEY_FIELD_FOR['default'];
-    const proxies = data.map(x => proxyFor(ctx, x));
+    const proxies = data.map(x => classify(ctx, x));
     const cache = registerType(state, type);
 
     clear(cache.list);
@@ -163,6 +165,21 @@ export default {
       cache.map.set(data[i][keyField], proxies[i]);
     }
 
+    cache.haveAll = true;
+  },
+
+  forgetAll(state, { type }) {
+    const cache = registerType(state, type);
+
+    clear(cache.list);
+    cache.map.clear();
+    cache.generation++;
+  },
+
+  loadedAll(state, { type }) {
+    const cache = registerType(state, type);
+
+    cache.generation++;
     cache.haveAll = true;
   },
 

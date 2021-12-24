@@ -20,8 +20,8 @@ function getBasePath() {
 }
 
 export function keyForSubscribe({
-  resourceType, type, namespace, id, selector, reason
-}) {
+  resourceType, type, namespace, id, selector
+} = {}) {
   return `${ resourceType || type || '' }/${ namespace || '' }/${ id || '' }/${ selector || '' }`;
 }
 
@@ -106,6 +106,7 @@ export const actions = {
     const url = `${ state.config.baseUrl.startsWith('/') ? `${ getBasePath() }${ state.config.baseUrl }` : state.config.baseUrl }/subscribe`;
 
     if ( socket ) {
+      socket.setAutoReconnect(true);
       socket.setUrl(url);
     } else {
       // socket = new Socket(`${ state.config.baseUrl }/subscribe`);

@@ -5,6 +5,7 @@ import LabeledInput from '@/components/form/LabeledInput';
 import LabeledSelect from '@/components/form/LabeledSelect';
 import InputOrDisplay from '@/components/InputOrDisplay';
 import { HCI, PVC } from '@/config/types';
+import { formatSi, parseSi } from '@/utils/units';
 
 export default {
   name: 'HarvesterEditVMImage',
@@ -102,10 +103,6 @@ export default {
       });
     },
 
-    needSetPVC() {
-      return !!this.errors.length || (!this.value.newCreateId && this.isEdit && this.value.size !== this.pvcsResource?.spec?.resources?.requests?.storage);
-    },
-
     isDisabled() {
       return !this.value.newCreateId && this.isEdit;
     },
@@ -121,7 +118,16 @@ export default {
     pvcsResource: {
       handler(pvc) {
         if (pvc?.spec?.resources?.requests?.storage) {
-          this.value.size = pvc.spec.resources.requests.storage;
+          const parseValue = parseSi(pvc.spec.resources.requests.storage);
+
+          const formatSize = formatSi(parseValue, {
+            increment:   1024,
+            addSuffix:   false,
+            maxExponent: 3,
+            minExponent: 3,
+          });
+
+          this.value.size = `${ formatSize }Gi`;
         }
       },
       deep:      true,
@@ -195,8 +201,9 @@ export default {
         <InputOrDisplay :name="t('harvester.fields.size')" :value="value.size" :mode="mode">
           <UnitInput
             v-model="value.size"
-            output-suffic-text="Gi"
-            output-as="string"
+            :output-modifier="true"
+            :increment="1024"
+            :input-exponent="3"
             :label="t('harvester.fields.size')"
             :mode="mode"
             :required="validateRequired"

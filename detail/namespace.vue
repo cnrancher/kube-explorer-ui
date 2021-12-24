@@ -8,7 +8,7 @@ import FleetSummary from '@/components/FleetSummary';
 import ResourceTabs from '@/components/form/ResourceTabs';
 
 import { COUNT } from '@/config/types';
-import { getStatesByType } from '@/plugins/steve/resource-instance';
+import { getStatesByType } from '@/plugins/steve/resource-class';
 import MoveModal from '@/components/MoveModal';
 
 export default {
@@ -37,7 +37,8 @@ export default {
 
   computed: {
     namespacedCounts() {
-      const allClusterResourceCounts = this.$store.getters[`cluster/all`](COUNT)[0].counts;
+      const inStore = this.$store.getters['currentProduct'].inStore;
+      const allClusterResourceCounts = this.$store.getters[`${ inStore }/all`](COUNT)[0].counts;
       const statesByType = getStatesByType();
       const totalCountsOut = {
         success: 0,

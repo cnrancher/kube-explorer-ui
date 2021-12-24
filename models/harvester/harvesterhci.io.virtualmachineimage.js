@@ -6,45 +6,49 @@ import {
 import { get, clone } from '@/utils/object';
 import { formatSi } from '@/utils/units';
 import { ucFirst } from '@/utils/string';
-import { stateDisplay, colorForState } from '@/plugins/steve/resource-instance';
+import { stateDisplay, colorForState } from '@/plugins/steve/resource-class';
+import SteveModel from '@/plugins/steve/steve-class';
 
-export const VM_IMAGE_FILE_FORMAT = ['qcow', 'qcow2', 'raw', 'img', 'iso'];
-
-export default {
-  availableActions() {
-    let out = this._standardActions;
+export default class HciVmImage extends SteveModel {
+  get availableActions() {
+    let out = super._availableActions;
     const toFilter = ['goToEditYaml'];
 
     out = out.filter( A => !toFilter.includes(A.action));
 
+    const schema = this.$getters['schemaFor'](HCI.VM);
+    let canCreateVM = true;
+
+    if ( schema && !schema?.collectionMethods.find(x => ['post'].includes(x.toLowerCase())) ) {
+      canCreateVM = false;
+    }
+
     return [
       {
         action:     'createFromImage',
-        enabled:    this.isReady,
+        enabled:    canCreateVM && this.isReady,
         icon:       'icon icon-fw icon-spinner',
         label:      this.t('harvester.action.createVM'),
       },
       ...out
     ];
-  },
+  }
 
   createFromImage() {
-    return () => {
-      const router = this.currentRouter();
+    const router = this.currentRouter();
 
-      router.push({
-        name:   `c-cluster-product-resource-create`,
-        params: { resource: HCI.VM },
-        query:  { image: this.id }
-      });
-    };
-  },
+    router.push({
+      name:   `c-cluster-product-resource-create`,
+      params: { resource: HCI.VM },
+      query:  { image: this.id }
+    });
+  }
 
-  nameDisplay() {
+  get nameDisplay() {
     return this.spec?.displayName;
-  },
+  }
 
-  isReady() {
+  get isReady() {
     const initialized = this.getStatusConditionOfType('Initialized');
     const imported = this.getStatusConditionOfType('Imported');
 
@@ -53,9 +57,9 @@ export default {
     } else {
       return true;
     }
-  },
+  }
 
-  stateDisplay() {
+  get stateDisplay() {
     const initialized = this.getStatusConditionOfType('Initialized');
     const imported = this.getStatusConditionOfType('Imported');
 
@@ -74,21 +78,21 @@ export default {
     }
 
     return stateDisplay(this.metadata.state.name);
-  },
+  }
 
-  stateBackground() {
+  get stateBackground() {
     return colorForState(this.stateDisplay).replace('text-', 'bg-');
-  },
+  }
 
-  imageSource() {
+  get imageSource() {
     return get(this, `spec.sourceType`) || 'download';
-  },
+  }
 
-  annotationsToIgnoreRegexes() {
+  get annotationsToIgnoreRegexes() {
     return [DESCRIPTION].concat(ANNOTATIONS_TO_IGNORE_REGEX);
-  },
+  }
 
-  downSize() {
+  get downSize() {
     const size = this.status?.size;
 
     if (!size) {
@@ -101,9 +105,9 @@ export default {
       suffix:       'B',
       firstSuffix:  'B',
     });
-  },
+  }
 
-  customValidationRules() {
+  get customValidationRules() {
     const out = [];
 
     if (this.imageSource === 'download') {
@@ -150,17 +154,15 @@ export default {
       },
       ...out
     ];
-  },
+  }
 
-  getStatusConditionOfType() {
-    return (type, defaultValue = []) => {
-      const conditions = Array.isArray(get(this, 'status.conditions')) ? this.status.conditions : defaultValue;
+  getStatusConditionOfType(type, defaultValue = []) {
+    const conditions = Array.isArray(get(this, 'status.conditions')) ? this.status.conditions : defaultValue;
 
-      return conditions.find( cond => cond.type === type);
-    };
-  },
+    return conditions.find( cond => cond.type === type);
+  }
 
-  stateObj() {
+  get stateObj() {
     const state = clone(this.metadata?.state);
     const initialized = this.getStatusConditionOfType('Initialized');
     const imported = this.getStatusConditionOfType('Imported');
@@ -170,30 +172,40 @@ export default {
     }
 
     return state;
-  },
+  }
 
-  stateDescription() {
+  get stateDescription() {
     const imported = this.getStatusConditionOfType('Imported');
 
     const status = imported?.status;
     const message = imported?.message;
 
     return status === 'False' ? ucFirst(message) : '';
-  },
+  }
 
-  uploadImage() {
-    return (file) => {
+  get uploadImage() {
+    return async(file) => {
       const formData = new FormData();
 
       formData.append('chunk', file);
 
-      this.doAction('upload', formData, {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          'File-Size':    file.size,
-        },
-        params: { size: file.size },
-      });
+      try {
+        this.$ctx.commit('harvester-common/uploadStart', this.metadata.name, { root: true });
+
+        await this.doAction('upload', formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+            'File-Size':    file.size,
+          },
+          params: { size: file.size },
+        });
+      } catch (err) {
+        this.$ctx.commit('harvester-common/uploadEnd', this.metadata.name, { root: true });
+
+        return Promise.reject(err);
+      }
+
+      this.$ctx.commit('harvester-common/uploadEnd', this.metadata.name, { root: true });
     };
   }
-};
+}

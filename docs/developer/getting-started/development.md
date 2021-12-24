@@ -25,6 +25,8 @@ There are other factors that assist in this, namely values from the `type-map`. 
 
 > When catching exceptions thrown by anything that contacts the API use `utils/error exceptionToErrorsArray` to correctly parse the response into a commonly accepted array of errors
 
+> If you need to add an endpoint to an unauthenticated route for loading from the store before login, you will need to add it [here](https://github.com/rancher/rancher/blob/cb7de4e6c3d7e783828dc662b1142c1f9ae5edbe/pkg/multiclustermanager/routes.go#L69).
+
 ## Store
 State is cached locally via [Vuex](https://vuex.vuejs.org/). See the Model section for retrieving information from the store.
 
@@ -76,72 +78,14 @@ Spoofed Types, like virtual types, add menu items but also define a spoofed sche
 
 > Any resources returned by `getInstances` should have a `kind` matching required type. This results in the tables showing the correct actions, handling create/edit, etc.
 
-
 ### Model Architecture
 
-There are two types of models used to represent resources: proxy models and ES6 class models. In both cases, the models apply properties and methods to the resource, which defines how the resource can function in the UI and what other components can do with it. Different APIs return models in different structures, but the implementation of the models allows some common functionality to be available for any of them, such as `someModel.name`, `someModel.description`, `setLabels` or `setAnnotations`.
 
-Originally only [proxy](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Proxy) models were used. In September 2021, class-based model support was added to increase performance because proxies were about 1/100th the speed of native property access in Firefox and Safari.
+The ES6 class models in the `models` directory are used to represent Kubernetes resources. The class applies properties and methods to the resource, which defines how the resource can function in the UI and what other components can do with it. Different APIs return models in different structures, but the implementation of the models allows some common functionality to be available for any of them, such as `someModel.name`, `someModel.description`, `setLabels` or `setAnnotations`.
 
-In the `models` directory, the proxy-based models are the `.js` files and the class-based models end in `.class.js`.
-
-Much of the reused functionality for each model is taken from the Steve plugin. The proxy-based models use functionality from `plugins/steve/resource-instance.js`, while the class-based models use functionality from `plugins/steve/resource-class.js`. Those two files share a lot of duplicated functionality, and if one is changed, the other probably needs to be changed to match until we drop support for proxy-based models.
+Much of the reused functionality for each model is taken from the Steve plugin. The class-based models use functionality from `plugins/steve/resource-class.js`.
 
 The `Resource` class in `plugins/steve/resource-class.js` should not have any fields defined that conflict with any key ever returned by the APIs (e.g. name, description, state, etc used to be a problem). The `SteveModel` (`plugins/steve/steve-class.js`) and `NormanModel` (`plugins/steve/norman-class.js`) know how to handle those keys separately now, so the computed name/description/etc is only in the Steve implementation. It is no longer needed to use names like `_name` to avoid naming conflicts.
-
-### Proxy Models
-
-For proxy models, when resources are retrieved from the store they will be wrapped in a Proxy object - `/plugins/steve/resource-proxy.js`. This exposes common properties and functions from `/plugins/steve/resource-instance.js`. These can be overridden per resource type via optional files in `/models`. For example the `nameDisplay` value for the type `management.cattle.io.user` avoids using the `nameDisplay` from `resource-instance` by adding a `nameDisplay` function to `/models/management.cattle.io.user.js`.
-
-To avoid naming conflicts with fields defined on models that come in from an API, some fields were renamed to `_name` or similar because a property on a model couldn't override the getter defined in the proxy.
-
-> As resources are proxy instances spreading (`{ ...<resource>}`) will not work as expected. In such cases it's normally better to first `clone` (see below) and then make the required changes.
-
-Common functionality provided by `resource-instance` includes information on how to display common properties, capabilities of the resource type and actions to execute such as `save`, `remove`, `goToEdit`
-
-```
-
-<user object>.save();
-
-<project object>.remove();
-
-<role binding object>.goToEdit();
-
-```
-
-> Note the `toString` property in `resource-instance`. This will change how the object is presented via console.log, etc. Read on to understand other ways to view resource properties.
-
-
-### Converting Proxy Models to Class Models
-
-To convert models from a proxy-based implementation to a class implementation, properties structured like this:
-
-```
-property() {
-  ...
-}
-```
-should be changed to:
-```
-get property() {
-  ....
-}
-```
-and 
-```
-methods() {
-  return () => {
-    ...
-  }
-}
-```
-should be converted to:
-```
-method() {
-  ...
-}
-```
-Examples of the conversion are in [this PR](https://github.com/rancher/dashboard/pull/4153), which converted some of the high-volume models. The rest should be converted as well.
 
 ### Extending Models
 
@@ -267,6 +211,8 @@ The top level detail page is defined in `./components/ResourceDetail`. This is a
 The Create/Edit Yaml experience is controlled by `/components/ResourceYaml.vue`. Other features are handled by custom components described below.
 
 Special attention should be made of the `mode` and `as` params that's available via the `CreateEditView` mixin (as well as other helpful functionality). Changing these should change the behaviour of the resource details page (depending on the availability of resource type custom components).
+
+For more information about CreateEditView and how to add new create/edit forms, see [Create/Edit Forms.](../create-edit-forms)
 
 | `mode` | `as` | Content |
 |------------|----------|-------|
@@ -493,6 +439,11 @@ The forms for creating and editing resources are in the `edit` directory. Common
 
 If a form element was repeated for every row in a table, it would make the UI slower. To increase performance, components such as `ActionMenu` and `PromptModal` are not repeated for every row in a table, and they don't directly interact with the data from a table row. Instead, they communicate with each row indirectly through the store. All the information about the actions that should be available for a certain resource is contained in a model, and the `ActionMenu` or `PromptModal` components take that information about the selected resource from the store. Modals and menus are opened by telling the store that they should be opened. For example, this call to the store  `this.$store.commit('action-menu/togglePromptModal');` is used to open the action menu. Then each component uses the `dispatch` method to get all the information it needs from the store.
 
+## Testing
+### E2E Tests
+This repo is configured for end-to-end testing with [Cypress](https://docs.cypress.io/api/table-of-contents). 
+#### Initial Setup
+For the cypress test runner to consume the UI, you must specify two environment variables, `TEST_USERNAME` and `TEST_PASSWORD`. By default the test runner will attempt to visit a locally running dashboard at `https://localhost:8005`. This may be overwritten with the `DEV_UI` environment variable. Run `yarn e2e:dev` to start the dashboard in SSR mode and open the cypress test runner. Run tests through the cypress GUI once the UI is built. Cypress tests will automatically re-run if they are altered (hot reloading). Alternatively the dashboard ui and cypress may be run separately with `yarn dev` and `yarn cypress open`. 
 
 ## Other UI Features
 ### Icons 

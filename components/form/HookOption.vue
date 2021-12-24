@@ -138,7 +138,8 @@ export default {
             v-model="value.exec.command"
             :mode="mode"
             :label="t('workload.container.lifecycleHook.exec.command.label')"
-            :placeholder="t('workload.container.lifecycleHook.exec.command.placeholder')"
+            :placeholder="t('workload.container.lifecycleHook.exec.command.placeholder', null, true)"
+            required
           />
         </div>
       </div>
@@ -166,6 +167,7 @@ export default {
             :label="t('workload.container.lifecycleHook.httpGet.port.label')"
             :placeholder="t('workload.container.lifecycleHook.httpGet.port.placeholder')"
             :mode="mode"
+            required
           />
           <LabeledSelect
             v-model="value.httpGet.scheme"
@@ -186,6 +188,7 @@ export default {
             :placeholder="t('workload.container.lifecycleHook.httpHeaders.name.placeholder')"
             class="single-value"
             :mode="mode"
+            required
           />
           <LabeledInput
             v-model="value.httpGet.httpHeaders[index].value"
