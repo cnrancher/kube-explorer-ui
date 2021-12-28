@@ -163,7 +163,7 @@ export const mutations = {
 
 export const actions = {
   init({ state, commit, dispatch }) {
-    let selected = this.$cookies.get(LOCALE, { parseJSON: false });
+    let selected = this.$cookies.get(LOCALE, { parseJSON: false }) ?? window.localStorage.getItem(LOCALE);
 
     if ( !selected ) {
       selected = state.default;
@@ -210,6 +210,7 @@ export const actions = {
       sameSite: true,
       secure:   true,
     });
+    window.localStorage.setItem(LOCALE, locale);
   },
 
   toggleNone({ state, dispatch }) {
