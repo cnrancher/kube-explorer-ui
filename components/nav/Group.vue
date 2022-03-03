@@ -92,7 +92,7 @@ export default {
       this.$emit('expand', this.group);
     },
 
-    groupSelected(e) {
+    groupSelected() {
       // Don't auto-select first group entry if we're already expanded
       if (this.isExpanded) {
         return;
@@ -103,7 +103,7 @@ export default {
       const items = this.group[this.childrenKey];
 
       // Navigate to one of the child items (by default the first child)
-      if (items && items.length > 0 && e) {
+      if (items && items.length > 0) {
         let index = 0;
 
         // If there is a default type, use it
@@ -115,7 +115,7 @@ export default {
 
         const route = items[index].route;
 
-        if (route && (this.$route.name !== route.name || JSON.stringify(this.$route.params ?? {}) !== JSON.stringify(route.params ?? {}))) {
+        if (route) {
           this.$router.replace(route);
         }
       }
