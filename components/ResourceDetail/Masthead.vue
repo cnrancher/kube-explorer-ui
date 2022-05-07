@@ -1,6 +1,6 @@
 <script>
 import { KUBERNETES, PROJECT } from '@/config/labels-annotations';
-import { FLEET, NAMESPACE, MANAGEMENT } from '@/config/types';
+import { FLEET, NAMESPACE, MANAGEMENT, HELM } from '@/config/types';
 import ButtonGroup from '@/components/ButtonGroup';
 import BadgeState from '@/components/BadgeState';
 import Banner from '@/components/Banner';
@@ -11,7 +11,15 @@ import {
   AS, _DETAIL, _CONFIG, _YAML, MODE, _CREATE, _EDIT, _VIEW, _UNFLAG
 } from '@/config/query-params';
 
+/**
+ * Resource Detail Masthead component.
+ *
+ * ToDo: this component seem to be picking up a lot of logic from special cases, could be simplified down to parameters and then customized per use-case via wrapper component
+ */
 export default {
+
+  name: 'MastheadResourceDetail',
+
   components: {
     BadgeState, Banner, ButtonGroup
   },
@@ -92,12 +100,28 @@ export default {
       return this.schema?.id === NAMESPACE;
     },
 
+    isProject() {
+      return this.schema?.id === MANAGEMENT.PROJECT;
+    },
+
+    isProjectHelmChart() {
+      return this.schema?.id === HELM.PROJECTHELMCHART;
+    },
+
+    hasMultipleNamespaces() {
+      return !!this.value.namespaces;
+    },
+
     namespace() {
       if (this.value?.metadata?.namespace) {
         return this.value?.metadata?.namespace;
       }
 
       return null;
+    },
+
+    shouldHifenize() {
+      return (this.mode === 'view' || this.mode === 'edit') && this.resourceSubtype?.length && this.value?.nameDisplay?.length;
     },
 
     namespaceLocation() {
@@ -227,7 +251,7 @@ export default {
         });
       }
 
-      if ( this.hasEdit ) {
+      if ( this.hasEdit && this.parent?.showConfigView !== false) {
         out.push({
           labelKey: 'resourceDetail.masthead.config',
           value:    'config',
@@ -295,6 +319,16 @@ export default {
         managedBy,
       };
     },
+
+    displayName() {
+      let displayName = this.value.nameDisplay;
+
+      if (this.isProjectHelmChart) {
+        displayName = this.value.projectDisplayName;
+      }
+
+      return this.shouldHifenize ? ` - ${ displayName }` : displayName;
+    }
   },
 
   methods: {
@@ -325,15 +359,16 @@ export default {
             </nuxt-link>
             <span v-else>{{ parent.displayName }}:</span>
             <span v-if="value.detailPageHeaderActionOverride && value.detailPageHeaderActionOverride(realMode)">{{ value.detailPageHeaderActionOverride(realMode) }}</span>
-            <t v-else :k="'resourceDetail.header.' + realMode" :subtype="resourceSubtype" :name="value.nameDisplay" />
+            <t v-else :k="'resourceDetail.header.' + realMode" :subtype="resourceSubtype" :name="displayName" />
             <BadgeState v-if="!isCreate && parent.showState" class="masthead-state" :value="value" />
           </h1>
         </div>
         <div v-if="!isCreate" class="subheader">
-          <span v-if="isNamespace && project">{{ t("resourceDetail.masthead.project") }}: {{ project.nameDisplay }}</span>
+          <span v-if="isNamespace && project">{{ t("resourceDetail.masthead.project") }}: <nuxt-link :to="project.detailLocation">{{ project.nameDisplay }}</nuxt-link></span>
           <span v-else-if="isWorkspace">{{ t("resourceDetail.masthead.workspace") }}: <nuxt-link :to="workspaceLocation">{{ namespace }}</nuxt-link></span>
-          <span v-else-if="namespace">{{ t("resourceDetail.masthead.namespace") }}: <nuxt-link :to="namespaceLocation">{{ namespace }}</nuxt-link></span>
+          <span v-else-if="namespace && !hasMultipleNamespaces">{{ t("resourceDetail.masthead.namespace") }}: <nuxt-link :to="namespaceLocation">{{ namespace }}</nuxt-link></span>
           <span v-if="parent.showAge">{{ t("resourceDetail.masthead.age") }}: <LiveDate class="live-date" :value="get(value, 'metadata.creationTimestamp')" /></span>
+          <span v-if="value.showPodRestarts">{{ t("resourceDetail.masthead.restartCount") }}:<span class="live-data"> {{ value.restartCount }}</span></span>
         </div>
       </div>
       <slot name="right">
@@ -409,7 +444,7 @@ export default {
       margin: 5px 20px 5px 0px;
     }
 
-    .live-date {
+    .live-data {
       color: var(--body-text)
     }
   }

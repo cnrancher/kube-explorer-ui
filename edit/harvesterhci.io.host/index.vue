@@ -15,7 +15,7 @@ import { HCI as HCI_LABELS_ANNOTATIONS } from '@/config/labels-annotations';
 import { HCI, LONGHORN } from '@/config/types';
 import { allHash } from '@/utils/promise';
 import { formatSi } from '@/utils/units';
-import { findBy, uniq } from '@/utils/array';
+import { findBy } from '@/utils/array';
 import { matchesSomeRegex } from '@/utils/string';
 import { clone } from '@/utils/object';
 import { exceptionToErrorsArray } from '@/utils/error';
@@ -83,7 +83,7 @@ export default {
           originPath:     d?.spec?.fileSystem?.mountPoint,
           path:           d?.spec?.fileSystem?.mountPoint,
           blockDevice:    d,
-          displayName:    d?.spec?.devPath,
+          displayName:    d?.displayName,
           forceFormatted: d?.spec?.fileSystem?.forceFormatted || false,
         };
       });
@@ -108,7 +108,6 @@ export default {
       disks:                [],
       newDisks:             [],
       blockDevice:          [],
-      dismountBlockDevices: {},
       blockDeviceOpts:      [],
     };
   },
@@ -166,7 +165,7 @@ export default {
           storageMaximum:   formatSi(diskStatus[key]?.storageMaximum, formatOptions),
           storageScheduled: formatSi(diskStatus[key]?.storageScheduled, formatOptions),
           blockDevice,
-          displayName:      blockDevice?.spec?.devPath || key,
+          displayName:      blockDevice?.displayName || key,
           forceFormatted:   blockDevice?.spec?.fileSystem?.forceFormatted || false,
         };
       });
@@ -179,6 +178,19 @@ export default {
 
       return out.length > 0;
     },
+
+    hasHostNetworksSchema() {
+      const inStore = this.$store.getters['currentProduct'].inStore;
+
+      return !!this.$store.getters[`${ inStore }/schemaFor`](HCI.NODE_NETWORK);
+    },
+
+    hasBlockDevicesSchema() {
+      const inStore = this.$store.getters['currentProduct'].inStore;
+
+      return !!this.$store.getters[`${ inStore }/schemaFor`](HCI.BLOCK_DEVICE);
+    },
+
   },
   watch: {
     customName(neu) {
@@ -220,28 +232,29 @@ export default {
       const inStore = this.$store.getters['currentProduct'].inStore;
       const disk = this.$store.getters[`${ inStore }/byId`](HCI.BLOCK_DEVICE, id);
       const mountPoint = disk?.spec?.fileSystem?.mountPoint;
+      const lastFormattedAt = disk?.status?.deviceStatus?.fileSystem?.LastFormattedAt;
 
-      let forceFormatted;
+      let forceFormatted = true;
       const systems = ['ext4', 'XFS'];
 
-      if (systems.includes(disk?.status?.deviceStatus?.fileSystem?.type)) {
+      if (lastFormattedAt) {
         forceFormatted = false;
-      } else {
-        forceFormatted = !disk?.status?.deviceStatus?.partitioned;
+      } else if (systems.includes(disk?.status?.deviceStatus?.fileSystem?.type)) {
+        forceFormatted = false;
       }
 
       const name = disk?.metadata?.name;
 
       this.newDisks.push({
         name,
-        path:              mountPoint || `/var/lib/harvester/extra-disks/${ name }`,
+        path:              mountPoint,
         allowScheduling:   false,
         evictionRequested: false,
         storageReserved:   0,
         isNew:             true,
         originPath:        disk?.spec?.fileSystem?.mountPoint,
         blockDevice:       disk,
-        displayName:       disk?.spec?.devPath,
+        displayName:       disk?.displayName,
         forceFormatted,
       });
     },
@@ -250,30 +263,11 @@ export default {
       const addDisks = this.newDisks.filter(d => d.isNew);
       const removeDisks = this.disks.filter(d => !findBy(this.newDisks, 'name', d.name) && d.blockDevice);
 
-      const errors = [];
-
-      addDisks.map((d) => {
-        const path = d?.path;
-
-        if (!path) {
-          errors.push(this.t('validation.required', { key: 'Path' }));
-        }
-
-        if (!path.startsWith('/')) {
-          errors.push('"Path" must start with "/"');
-        }
-      });
-
-      if (errors.length > 0) {
-        return Promise.reject(uniq(errors));
-      }
-
       try {
         await Promise.all(addDisks.map((d) => {
           const blockDevice = this.$store.getters[`${ inStore }/byId`](HCI.BLOCK_DEVICE, `${ LONGHORN_SYSTEM }/${ d.name }`);
 
           blockDevice.spec.fileSystem.provisioned = true;
-          blockDevice.spec.fileSystem.mountPoint = d.path;
           blockDevice.spec.fileSystem.forceFormatted = d.forceFormatted;
 
           return blockDevice.save();
@@ -283,7 +277,6 @@ export default {
           const blockDevice = this.$store.getters[`${ inStore }/byId`](HCI.BLOCK_DEVICE, `${ LONGHORN_SYSTEM }/${ d.name }`);
 
           blockDevice.spec.fileSystem.provisioned = false;
-          blockDevice.spec.fileSystem.mountPoint = this.dismountBlockDevices[blockDevice.id];
 
           return blockDevice.save();
         }));
@@ -302,12 +295,6 @@ export default {
     },
 
     onRemove(scope) {
-      const value = scope?.row?.value;
-
-      if (value?.blockDevice?.id) {
-        this.dismountBlockDevices[value.blockDevice.id] = value?.path;
-      }
-
       scope.remove();
     },
 
@@ -342,10 +329,9 @@ export default {
           const isAdded = findBy(this.newDisks, 'name', d.metadata.name);
           const isRemoved = findBy(this.removedDisks, 'name', d.metadata.name);
 
-          const parentDevice = d.status?.deviceStatus?.parentDevice;
-          const isParentSelected = this.newDisks.find(d => d?.blockDevice?.spec?.devPath === parentDevice);
+          const deviceType = d.status?.deviceStatus?.details?.deviceType;
 
-          if (parentDevice && isParentSelected) {
+          if (deviceType !== 'disk') {
             return false;
           }
 
@@ -368,8 +354,9 @@ export default {
           const size = formatSi(sizeBytes, { increment: 1024 });
           const parentDevice = d.status?.deviceStatus?.parentDevice;
           const isChildAdded = this.newDisks.find(newDisk => newDisk.blockDevice?.status?.deviceStatus?.parentDevice === devPath);
+          const name = d.displayName;
 
-          let label = `${ devPath } (Type: ${ deviceType }, Size: ${ size })`;
+          let label = `${ name } (Type: ${ deviceType }, Size: ${ size })`;
 
           if (parentDevice) {
             label = `- ${ label }`;
@@ -380,7 +367,7 @@ export default {
             value:    d.id,
             action:   this.addDisk,
             kind:     !parentDevice ? 'group' : '',
-            disabled: !!((d.childParts.length > 0 && d.isChildPartProvisioned) || isChildAdded),
+            disabled: !!(d.childParts.length > 0 || isChildAdded),
             group:    parentDevice || devPath,
             isParent: !!parentDevice,
           };
@@ -418,9 +405,9 @@ export default {
           :mode="mode"
         />
       </Tab>
-      <Tab name="network" :weight="90" :label="t('harvester.host.tabs.network')">
+      <Tab v-if="hasHostNetworksSchema" name="network" :weight="90" :label="t('harvester.host.tabs.network')">
         <InfoBox class="wrapper">
-          <div class="row warpper">
+          <div class="row">
             <div class="col span-6">
               <LabeledInput
                 v-model="type"
@@ -453,6 +440,7 @@ export default {
         </InfoBox>
       </Tab>
       <Tab
+        v-if="hasBlockDevicesSchema"
         name="disk"
         :weight="80"
         :label="t('harvester.host.tabs.disk')"
@@ -493,7 +481,7 @@ export default {
           </template>
           <template #remove-button="scope">
             <button
-              v-if="canRemove(scope.row, scope.i)"
+              v-if="canRemove(scope.row, scope.i) && !isView"
               type="button"
               class="btn role-link close btn-sm"
               @click="() => onRemove(scope)"

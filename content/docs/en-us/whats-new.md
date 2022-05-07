@@ -2,6 +2,36 @@
 title: What's New in 2.6
 ---
 
+## New in 2.6.5
+
+### NeuVector Integration
+
+- Access NeuVector directly from the Rancher UI.
+
+### RKE2 Provisioning GA 
+
+- Provision RKE2 clusters from Rancher using our newest Kubernetes distro.
+
+### Enhanced Windows Support 
+
+- Windows support for RKE2 is now GA along with a vSphere driver for Windows.
+
+### Prometheus Federator 
+
+- Isolate metrics data between teams in the same cluster using Rancher projects.
+
+
+## New in 2.6.4
+
+### Kubernetes 1.22 Support
+
+- Kubernetes 1.22 is now available as a supported Kubernetes version option when provisioning RKE1 clusters as well as upgrading imported RKE2/k3s clusters.
+
+### Experimental - Kubernetes 1.23 Support
+
+- Kubernetes 1.23 has been introduced as an available Kubernetes version option when provisioning RKE1 clusters as well as upgrading imported RKE2/k3s clusters. This has been noted as experimental due to RKE1 clusters not having upstream vSphere CPI/CSI charts released as well as Windows RKE1 clusters not having dual-stack IPv4/IPv6 support.
+
+
 ## New in 2.6.3
 
 ### Harvester Integration

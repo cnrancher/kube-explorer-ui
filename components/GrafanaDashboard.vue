@@ -55,7 +55,7 @@ export default {
   },
   watch: {
     currentUrl() {
-      if (this.graphHistory) {
+      if (this.graphHistory && this.graphWindow?.angular) {
         const angularElement = this.graphWindow.angular.element(this.graphDocument.querySelector('.grafana-app'));
         const injector = angularElement.injector();
 
@@ -83,20 +83,26 @@ export default {
 
       this.interval = setInterval(() => {
         try {
-          const errorElements = this.$refs.frame.contentWindow.document.getElementsByClassName('alert-error');
-          const errorCornerElements = this.$refs.frame.contentWindow.document.getElementsByClassName('panel-info-corner--error');
-          const panelInFullScreenElements = this.$refs.frame.contentWindow.document.getElementsByClassName('panel-in-fullscreen');
-          const panelContainerElements = this.$refs.frame.contentWindow.document.getElementsByClassName('panel-container');
+          const graphWindow = this.$refs.frame?.contentWindow;
+          const errorElements = graphWindow.document.getElementsByClassName('alert-error');
+          const errorCornerElements = graphWindow.document.getElementsByClassName('panel-info-corner--error');
+          const panelInFullScreenElements = graphWindow.document.getElementsByClassName('panel-in-fullscreen');
+          const panelContainerElements = graphWindow.document.getElementsByClassName('panel-container');
           const error = errorElements.length > 0 || errorCornerElements.length > 0;
           const loaded = panelInFullScreenElements.length > 0 || panelContainerElements.length > 0;
+          const errorMessageElms = graphWindow.document.getElementsByTagName('pre');
+          const errorMessage = errorMessageElms.length > 0 ? errorMessageElms[0].innerText : '';
+          const isFailure = errorMessage.includes('"status": "Failure"');
 
           if (error) {
             throw new Error('An error was detected in the iframe');
           }
 
           this.$set(this, 'loading', !loaded);
+          this.$set(this, 'error', isFailure);
         } catch (ex) {
           this.$set(this, 'error', true);
+          this.$set(this, 'loading', false);
           clearInterval(this.interval);
           this.interval = null;
         }
@@ -184,7 +190,12 @@ export default {
         }
       `;
 
-      this.graphDocument.head.appendChild(style);
+      const graphWindow = this.$refs.frame?.contentWindow;
+      const graphDocument = graphWindow?.document;
+
+      if (graphDocument.head) {
+        graphDocument.head.appendChild(style);
+      }
     },
 
     inject() {

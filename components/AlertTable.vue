@@ -4,12 +4,22 @@ import Poller from '@/utils/poller';
 import SortableTable from '@/components/SortableTable';
 import { ENDPOINTS } from '@/config/types';
 import { mapGetters } from 'vuex';
-const CATTLE_MONITORING_NAMESPACE = 'cattle-monitoring-system';
 const ALERTMANAGER_POLL_RATE_MS = 30000;
 const MAX_FAILURES = 2;
 
 export default {
   components: { SortableTable },
+
+  props:      {
+    monitoringNamespace: {
+      type:    String,
+      default: 'cattle-monitoring-system'
+    },
+    alertServiceEndpoint: {
+      type:    String,
+      default: 'rancher-monitoring-alertmanager'
+    },
+  },
 
   data() {
     const eventHeaders = [
@@ -61,7 +71,10 @@ export default {
   methods: {
     async loadAlertManagerEvents() {
       const inStore = this.$store.getters['currentProduct'].inStore;
-      const alertsEvents = await this.$store.dispatch(`${ inStore }/request`, { url: `/k8s/clusters/${ this.currentCluster.id }/api/v1/namespaces/cattle-monitoring-system/services/http:rancher-monitoring-alertmanager:9093/proxy/api/v1/alerts` });
+      const alertsEvents = await this.$store.dispatch(
+        `${ inStore }/request`,
+        { url: `/k8s/clusters/${ this.currentCluster.id }/api/v1/namespaces/${ this.monitoringNamespace }/services/http:${ this.alertServiceEndpoint }:9093/proxy/api/v1/alerts` }
+      );
 
       if (alertsEvents.data) {
         this.allAlerts = alertsEvents.data;
@@ -70,7 +83,7 @@ export default {
 
     async fetchDeps() {
       try {
-        const am = await this.$store.dispatch('cluster/find', { type: ENDPOINTS, id: `${ CATTLE_MONITORING_NAMESPACE }/rancher-monitoring-alertmanager` });
+        const am = await this.$store.dispatch('cluster/find', { type: ENDPOINTS, id: `${ this.monitoringNamespace }/${ this.alertServiceEndpoint }` });
 
         if (!isEmpty(am) && !isEmpty(am.subsets)) {
           this.alertManagerPoller.start();

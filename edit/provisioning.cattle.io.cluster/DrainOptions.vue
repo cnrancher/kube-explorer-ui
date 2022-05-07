@@ -4,7 +4,7 @@ import Checkbox from '@/components/form/Checkbox.vue';
 import UnitInput from '@/components/form/UnitInput.vue';
 
 const DEFAULTS = {
-  deleteEmptyDirData:              false, // Show; Kill pods using emptyDir volumes and lose the data
+  deleteEmptyDirData:              true, // Show; Kill pods using emptyDir volumes and lose the data
   disableEviction:                 false, // Hide; false = evict pods, true = delete pods
   enabled:                         false, // Show; true = Nodes must be drained before upgrade; false = YOLO
   force:                           false, // Show; true = Delete standalone pods, false = fail if there are any
@@ -46,6 +46,10 @@ export default {
     out.customTimeout = out.timeout >= 0;
 
     return out;
+  },
+
+  created() {
+    this.update();
   },
 
   methods: {
@@ -101,8 +105,25 @@ export default {
       </div>
       <div>
         <Checkbox v-model="customTimeout" label="Timeout after" @input="update" />
-        <UnitInput v-if="customTimeout" v-model="timeout" label="Drain Timeout" suffix="Seconds" @input="update" />
+        <UnitInput
+          v-if="customTimeout"
+          v-model="timeout"
+          label="Drain Timeout"
+          suffix="Seconds"
+          class="drain-timeout"
+          @input="update"
+        />
       </div>
     </template>
   </div>
 </template>
+
+<style lang="scss" scoped>
+  $drain-timeout-index: 18px;
+
+  .drain-timeout {
+    margin-top: 5px;
+    margin-left: $drain-timeout-index;
+    width: calc(100% - $drain-timeout-index);
+  }
+</style>

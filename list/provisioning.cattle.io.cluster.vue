@@ -3,9 +3,9 @@ import Banner from '@/components/Banner';
 import ResourceTable from '@/components/ResourceTable';
 import Masthead from '@/components/ResourceList/Masthead';
 import { allHash } from '@/utils/promise';
-import { CAPI, MANAGEMENT } from '@/config/types';
+import { CAPI, MANAGEMENT, SNAPSHOT } from '@/config/types';
 import { MODE, _IMPORT } from '@/config/query-params';
-import { filterOnlyKubernetesClusters } from '@/utils/cluster';
+import { filterOnlyKubernetesClusters, filterHiddenLocalCluster } from '@/utils/cluster';
 import { mapFeature, HARVESTER as HARVESTER_FEATURE } from '@/store/features';
 import { NAME as EXPLORER } from '@/config/product/explorer';
 
@@ -19,6 +19,10 @@ export default {
       mgmtClusters:       this.$store.dispatch('management/findAll', { type: MANAGEMENT.CLUSTER }),
       rancherClusters:    this.$store.dispatch('management/findAll', { type: CAPI.RANCHER_CLUSTER }),
     };
+
+    if ( this.$store.getters['management/canList'](SNAPSHOT) ) {
+      hash.etcdSnapshots = this.$store.dispatch('management/findAll', { type: SNAPSHOT });
+    }
 
     if ( this.$store.getters['management/canList'](MANAGEMENT.NODE) ) {
       hash.mgmtNodes = this.$store.dispatch('management/findAll', { type: MANAGEMENT.NODE });
@@ -55,18 +59,18 @@ export default {
     rows() {
       // If Harvester feature is enabled, hide Harvester Clusters
       if (this.harvesterEnabled) {
-        return filterOnlyKubernetesClusters(this.rancherClusters);
+        return filterHiddenLocalCluster(filterOnlyKubernetesClusters(this.rancherClusters), this.$store);
       }
 
       // Otherwise, show Harvester clusters - these will be shown with a warning
-      return this.rancherClusters;
+      return filterHiddenLocalCluster(this.rancherClusters, this.$store);
     },
 
     hiddenHarvesterCount() {
       const product = this.$store.getters['currentProduct'];
       const isExplorer = product?.name === EXPLORER;
 
-      // Don't show Harveser banner message on the cluster management page or if Harvester if not enabled
+      // Don't show Harvester banner message on the cluster management page or if Harvester if not enabled
       if (!isExplorer || !this.harvesterEnabled) {
         return 0;
       }

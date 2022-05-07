@@ -1,5 +1,5 @@
 import { DSL } from '@/store/type-map';
-import { MANAGEMENT } from '@/config/types';
+import { MANAGEMENT, HELM } from '@/config/types';
 import {
   STATE,
   FEATURE_DESCRIPTION,
@@ -21,7 +21,6 @@ export function init(store) {
 
   product({
     ifHaveType:          new RegExp(`${ MANAGEMENT.SETTING }|${ MANAGEMENT.FEATURE }`, 'i'),
-    ifHaveVerb:          'PUT',
     inStore:             'management',
     icon:                'globe',
     removable:           false,
@@ -34,7 +33,7 @@ export function init(store) {
     labelKey:       'advancedSettings.label',
     name:           'settings',
     namespaced:     false,
-    weight:         99,
+    weight:         100,
     icon:           'folder',
     route:          {
       name:   'c-cluster-product-resource',
@@ -71,10 +70,21 @@ export function init(store) {
     route:          { name: 'c-cluster-settings-brand' }
   });
 
+  virtualType({
+    ifHaveType:     MANAGEMENT.SETTING,
+    labelKey:       'banner.settingName',
+    name:           'banners',
+    namespaced:     false,
+    weight:         98,
+    icon:           'folder',
+    route:          { name: 'c-cluster-settings-banners' }
+  });
+
   basicType([
     'settings',
     'features',
-    'brand'
+    'brand',
+    'banners'
   ]);
 
   configureType(MANAGEMENT.SETTING, {
@@ -91,6 +101,22 @@ export function init(store) {
     showAge:     false,
     showState:   true,
     canYaml:     false,
+  });
+
+  configureType(MANAGEMENT.PROJECT, {
+    isCreatable: true,
+    isRemovable: true,
+    showAge:     false,
+    showState:   false,
+    canYaml:     true,
+  });
+
+  configureType(HELM.PROJECTHELMCHART, {
+    isCreatable: true,
+    isRemovable: true,
+    showAge:     true,
+    showState:   true,
+    canYaml:     true,
   });
 
   headers(MANAGEMENT.FEATURE, [

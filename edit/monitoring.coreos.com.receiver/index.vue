@@ -1,4 +1,12 @@
 <script>
+/**
+ * The Route and Receiver resources are deprecated. Going forward,
+ * routes and receivers should be configured within AlertmanagerConfigs.
+ * Any updates to receiver configuration forms, such as Slack/email/PagerDuty
+ * etc, should be made to the receiver forms that are based on the
+ * AlertmanagerConfig resource, which has a different API. The new forms are
+ * located in @/edit/monitoring.coreos.com.alertmanagerconfig/types.
+ */
 import { MONITORING } from '@/config/types';
 import ArrayListGrouped from '@/components/form/ArrayListGrouped';
 import Loading from '@/components/Loading';
@@ -234,6 +242,7 @@ export default {
       .subtype-banner{
         justify-content: space-between;
         align-items: center;
+        flex-direction: row;
       }
     }
 

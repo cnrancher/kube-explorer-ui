@@ -1,5 +1,5 @@
 import {
-  HCI, NODE, CONFIG_MAP, NAMESPACE, VIRTUAL_TYPES, MANAGEMENT, PVC
+  HCI, NODE, CONFIG_MAP, NAMESPACE, VIRTUAL_TYPES, MANAGEMENT, PVC, NETWORK_ATTACHMENT
 } from '@/config/types';
 import {
   STATE, NAME_UNLINKED, NAME as NAME_COL, AGE, NAMESPACE as NAMESPACE_COL,
@@ -190,6 +190,19 @@ export function init(store) {
   ], 'advanced');
 
   configureType(HCI.CLUSTER_NETWORK, { realResource: HCI.SETTING, showState: false });
+
+  configureType(HCI.MANAGED_CHART, {
+    location:    {
+      name:    'c-cluster-product-resource',
+      params:  { resource: HCI.MANAGED_CHART },
+    },
+    resource:       MANAGEMENT.MANAGED_CHART,
+    resourceDetail: HCI.MANAGED_CHART,
+    resourceEdit:   HCI.MANAGED_CHART
+  });
+
+  configureType(MANAGEMENT.MANAGED_CHART, { showState: false });
+
   virtualType({
     labelKey:   'harvester.vmTemplate.label',
     group:      'root',
@@ -203,7 +216,7 @@ export function init(store) {
     exact: false,
   });
 
-  configureType(HCI.BACKUP, { showListMasthead: false });
+  configureType(HCI.BACKUP, { showListMasthead: false, showConfigView: false });
   virtualType({
     labelKey:   'harvester.backup.label',
     name:       HCI.BACKUP,
@@ -216,7 +229,17 @@ export function init(store) {
     exact: false,
   });
 
-  configureType(HCI.NETWORK_ATTACHMENT, { isEditable: false, showState: false });
+  configureType(NETWORK_ATTACHMENT, { isEditable: false, showState: false });
+  configureType(HCI.NETWORK_ATTACHMENT, {
+    location:    {
+      name:    'c-cluster-product-resource',
+      params:  { resource: HCI.NETWORK_ATTACHMENT },
+    },
+    resource:       NETWORK_ATTACHMENT,
+    resourceDetail: HCI.NETWORK_ATTACHMENT,
+    resourceEdit:   HCI.NETWORK_ATTACHMENT,
+  });
+
   virtualType({
     labelKey:   'harvester.network.label',
     name:       HCI.NETWORK_ATTACHMENT,
@@ -251,6 +274,7 @@ export function init(store) {
     resourceDetail: HCI.CLOUD_TEMPLATE,
     resourceEdit:   HCI.CLOUD_TEMPLATE,
   });
+
   virtualType({
     labelKey:     'harvester.cloudTemplate.label',
     name:         HCI.CLOUD_TEMPLATE,

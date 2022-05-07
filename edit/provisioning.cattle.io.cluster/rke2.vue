@@ -118,12 +118,28 @@ export default {
       const hash = {
         rke2Versions: this.$store.dispatch('management/request', { url: '/v1-rke2-release/releases' }),
         k3sVersions:  this.$store.dispatch('management/request', { url: '/v1-k3s-release/releases' }),
-        rke2Channels: this.$store.dispatch('management/request', { url: '/v1-rke2-release/channels' }),
-        k3sChannels:  this.$store.dispatch('management/request', { url: '/v1-k3s-release/channels' }),
       };
 
       if ( this.$store.getters['management/canList'](MANAGEMENT.POD_SECURITY_POLICY_TEMPLATE) ) {
         hash.allPSPs = await this.$store.dispatch('management/findAll', { type: MANAGEMENT.POD_SECURITY_POLICY_TEMPLATE });
+      }
+
+      // Get the latest versions from the global settings if possible
+      const globalSettings = await this.$store.getters['management/all'](MANAGEMENT.SETTING) || [];
+      const defaultRke2Setting = globalSettings.find(setting => setting.id === 'rke2-default-version') || {};
+      const defaultK3sSetting = globalSettings.find(setting => setting.id === 'k3s-default-version') || {};
+
+      let defaultRke2 = defaultRke2Setting?.value || defaultRke2Setting?.default;
+      let defaultK3s = defaultK3sSetting?.value || defaultK3sSetting?.default;
+
+      // RKE2: Use the channel if we can not get the version from the settings
+      if (!defaultRke2) {
+        hash.rke2Channels = this.$store.dispatch('management/request', { url: '/v1-rke2-release/channels' });
+      }
+
+      // K3S: Use the channel if we can not get the version from the settings
+      if (!defaultK3s) {
+        hash.k3sChannels = this.$store.dispatch('management/request', { url: '/v1-k3s-release/channels' });
       }
 
       const res = await allHash(hash);
@@ -131,12 +147,26 @@ export default {
       this.allPSPs = res.allPSPs || [];
       this.rke2Versions = res.rke2Versions.data || [];
       this.k3sVersions = res.k3sVersions.data || [];
-      this.rke2Channels = res.rke2Channels.data || [];
-      this.k3sChannels = res.k3sChannels.data || [];
+
+      if (!defaultRke2) {
+        const rke2Channels = res.rke2Channels.data || [];
+
+        defaultRke2 = rke2Channels.find(x => x.id === 'default')?.latest;
+      }
+
+      if (!defaultK3s) {
+        const k3sChannels = res.k3sChannels.data || [];
+
+        defaultK3s = k3sChannels.find(x => x.id === 'default')?.latest;
+      }
 
       if ( !this.rke2Versions.length && !this.k3sVersions.length ) {
         throw new Error('No version info found in KDM');
       }
+
+      // Store default versions
+      this.defaultRke2 = defaultRke2;
+      this.defaultK3s = defaultK3s;
     }
 
     if ( !this.value.spec ) {
@@ -233,7 +263,7 @@ export default {
 
     if ( !this.value.spec.rkeConfig.upgradeStrategy ) {
       set(this.value.spec.rkeConfig, 'upgradeStrategy', {
-        controlPlaneConcurrency:  '10%',
+        controlPlaneConcurrency:  '1',
         controlPlaneDrainOptions: {},
         workerConcurrency:        '10%',
         workerDrainOptions:       {},
@@ -249,27 +279,28 @@ export default {
     }
 
     return {
-      loadedOnce:           false,
-      lastIdx:              0,
-      allPSPs:              null,
-      nodeComponent:        null,
-      credentialId:         null,
-      credential:           null,
-      machinePools:         null,
-      rke2Versions:         null,
-      k3sVersions:          null,
-      rke2Channels:         [],
-      k3sChannels:          [],
-      s3Backup:             false,
-      versionInfo:          {},
-      membershipUpdate:     {},
-      systemRegistry:       null,
-      registryHost:         null,
-      registryMode:         null,
-      registrySecret:       null,
-      userChartValues:      {},
-      userChartValuesTemp:  {},
-      addonsRev:            0,
+      loadedOnce:              false,
+      lastIdx:                 0,
+      allPSPs:                 null,
+      nodeComponent:           null,
+      credentialId:            null,
+      credential:              null,
+      machinePools:            null,
+      rke2Versions:            null,
+      k3sVersions:             null,
+      defaultRke2:             '',
+      defaultK3s:              '',
+      s3Backup:                false,
+      versionInfo:             {},
+      membershipUpdate:        {},
+      systemRegistry:          null,
+      registryHost:            null,
+      registryMode:            null,
+      registrySecret:          null,
+      userChartValues:         {},
+      userChartValuesTemp:     {},
+      addonsRev:               0,
+      clusterIsAlreadyCreated: !!this.value.id
     };
   },
 
@@ -303,6 +334,12 @@ export default {
       // The one we want is the first one with no selector.
       // If there are multiple with no selector, that will fall under the unsupported message below.
       return this.value.spec.rkeConfig.machineSelectorConfig.find(x => !x.machineLabelSelector).config;
+    },
+
+    showK3sTechPreviewWarning() {
+      const selectedVersion = this.value?.spec?.kubernetesVersion || 'none';
+
+      return !!this.k3sVersions.find(v => v.version === selectedVersion);
     },
 
     // kubeletConfigs() {
@@ -343,10 +380,8 @@ export default {
       const cur = this.liveValue?.spec?.kubernetesVersion || '';
       const existingRke2 = this.mode === _EDIT && cur.includes('rke2');
       const existingK3s = this.mode === _EDIT && cur.includes('k3s');
-      const defaultRke2 = this.rke2Channels.find(x => x.id === 'default')?.latest;
-      const defaultK3s = this.k3sChannels.find(x => x.id === 'default')?.latest;
-      const rke2 = this.filterAndMap(this.rke2Versions, (existingRke2 ? cur : null), cur, defaultRke2);
-      const k3s = this.filterAndMap(this.k3sVersions, (existingK3s ? cur : null), cur, defaultK3s);
+      const rke2 = this.filterAndMap(this.rke2Versions, (existingRke2 ? cur : null), cur, this.defaultRke2);
+      const k3s = this.filterAndMap(this.k3sVersions, (existingK3s ? cur : null), cur, this.defaultK3s);
       const showRke2 = rke2.length && !existingK3s;
       const showK3s = k3s.length && !existingRke2;
       const out = [];
@@ -361,7 +396,11 @@ export default {
 
       if ( showK3s ) {
         if ( showRke2 ) {
-          out.push({ kind: 'group', label: this.t('cluster.provider.k3s') });
+          out.push({
+            kind:  'group',
+            label: this.t('cluster.provider.k3s'),
+            badge: this.t('generic.techPreview')
+          });
         }
 
         out.push(...k3s);
@@ -434,7 +473,13 @@ export default {
       const preferred = this.$store.getters['plugins/cloudProviderForDriver'](this.provider);
 
       for ( const opt of this.agentArgs['cloud-provider-name'].options ) {
-        if ( (!preferred && opt !== HARVESTER) || opt === preferred || opt === 'external' || preferred === HARVESTER) {
+        // If we don't have a preferred provider... show all options
+        const showAllOptions = preferred === undefined;
+        // If we have a preferred provider... only show default, preferred and external
+        const isPreferred = opt === preferred;
+        const isExternal = opt === 'external';
+
+        if (showAllOptions || isPreferred || isExternal) {
           out.push({
             label: this.$store.getters['i18n/withFallback'](`cluster.cloudProvider."${ opt }".label`, null, opt),
             value: opt,
@@ -647,7 +692,7 @@ export default {
       const cni = this.serverConfig.cni;
 
       if ( cni ) {
-        const parts = cni.split('+').map(x => `rke2-${ x }`);
+        const parts = cni.split(',').map(x => `rke2-${ x }`);
 
         names.push(...parts);
       }
@@ -693,8 +738,7 @@ export default {
     defaultVersion() {
       const all = this.versionOptions.filter(x => !!x.value);
       const first = all[0]?.value;
-      const preferredVersion = this.rke2Channels.find(x => x.id === 'default')?.latest;
-      const preferred = all.find(x => x.value === preferredVersion)?.value;
+      const preferred = all.find(x => x.value === this.defaultRke2)?.value;
 
       const rke2 = this.filterAndMap(this.rke2Versions, null);
       const showRke2 = rke2.length;
@@ -716,6 +760,67 @@ export default {
 
       return out;
     },
+
+    ciliumIpv6: {
+      get() {
+        // eslint-disable-next-line no-unused-vars
+        const cni = this.serverConfig.cni; // force this property to recalculate if cni was changed away from cilium and chartValues['rke-cilium'] deleted
+
+        return this.userChartValues[this.chartVersionKey('rke2-cilium')]?.cilium?.ipv6?.enabled || false;
+      },
+      set(val) {
+        const name = this.chartVersionKey('rke2-cilium');
+        const values = this.userChartValues[name];
+
+        set(this, 'userChartValues', {
+          ...this.userChartValues,
+          [name]: {
+            ...values,
+            cilium: {
+              ...values?.cilium,
+              ipv6: {
+                ...values?.cilium?.ipv6,
+                enabled: val
+              }
+            }
+          }
+        });
+      }
+    },
+
+    showIpv6Warning() {
+      const clusterCIDR = this.serverConfig['cluster-cidr'] || '';
+      const serviceCIDR = this.serverConfig['service-cidr'] || '';
+
+      return clusterCIDR.includes(':') || serviceCIDR.includes(':');
+    },
+
+    appsOSWarning() {
+      if (this.mode !== _EDIT ) {
+        return null;
+      }
+      const { linuxWorkerCount, windowsWorkerCount } = this.value?.mgmt?.status || {};
+
+      if (!windowsWorkerCount) {
+        if (!!this.machinePools.find((pool) => {
+          return pool?.config?.os === 'windows';
+        })) {
+          return this.t('cluster.banner.os', { newOS: 'Windows', existingOS: 'Linux' });
+        }
+      } else if (!linuxWorkerCount) {
+        if (this.machinePools.find((pool) => {
+          return pool?.config?.os === 'linux';
+        })) {
+          return this.t('cluster.banner.os', { newOS: 'Linux', existingOS: 'Windows' });
+        }
+      }
+
+      return null;
+    },
+
+    showForm() {
+      return !!this.credentialId || !this.needCredential;
+    }
   },
 
   watch: {
@@ -776,7 +881,8 @@ export default {
         // ... which will eventually update `value.spec.rkeConfig.chartValues`
         set(this.agentConfig, 'cloud-provider-name', undefined);
       }
-    }
+    },
+
   },
 
   mounted() {
@@ -845,8 +951,7 @@ export default {
       config.applyDefaults(idx, this.machinePools);
 
       const name = `pool${ ++this.lastIdx }`;
-
-      this.machinePools.push({
+      const pool = {
         id:      name,
         config,
         remove: false,
@@ -854,18 +959,24 @@ export default {
         update: false,
         pool:    {
           name,
-          etcdRole:         numCurrentPools === 0,
-          controlPlaneRole: numCurrentPools === 0,
-          workerRole:       true,
-          hostnamePrefix:   '',
-          labels:           {},
-          quantity:         1,
-          machineConfigRef:    {
+          etcdRole:             numCurrentPools === 0,
+          controlPlaneRole:     numCurrentPools === 0,
+          workerRole:           true,
+          hostnamePrefix:       '',
+          labels:               {},
+          quantity:             1,
+          unhealthyNodeTimeout: '0m',
+          machineConfigRef:     {
             kind:       this.machineConfigSchema.attributes.kind,
             name:       null,
           },
         },
-      });
+      };
+
+      if (this.provider === 'vmwarevsphere') {
+        pool.pool.machineOS = 'linux';
+      }
+      this.machinePools.push(pool);
 
       this.$nextTick(() => {
         if ( this.$refs.pools?.select ) {
@@ -890,6 +1001,23 @@ export default {
       }
     },
 
+    async syncMachineConfigWithLatest(machinePool) {
+      if (machinePool?.config?.id) {
+        const latestConfig = await this.$store.dispatch('management/find', {
+          type: machinePool.config.type,
+          id:   machinePool.config.id,
+          opt:  { force: true },
+        });
+        const clonedCurrentConfig = await this.$store.dispatch('management/clone', { resource: machinePool.config });
+        const clonedLatestConfig = await this.$store.dispatch('management/clone', { resource: latestConfig });
+
+        // We don't allow the user to edit any of the fields in metadata from the UI so it's safe to override it with the
+        // metadata defined by the latest backend value. This is primarily used to ensure the resourceVersion is up to date.
+        delete clonedCurrentConfig.metadata;
+        machinePool.config = merge(machinePool.config, clonedLatestConfig);
+      }
+    },
+
     async saveMachinePools() {
       const finalPools = [];
 
@@ -897,6 +1025,8 @@ export default {
         if ( entry.remove ) {
           continue;
         }
+
+        await this.syncMachineConfigWithLatest(entry);
 
         // Capitals and such aren't allowed;
         set(entry.pool, 'name', normalizeName(entry.pool.name) || 'pool');
@@ -976,9 +1106,23 @@ export default {
       });
     },
 
+    showAddonConfirmation() {
+      return new Promise((resolve, reject) => {
+        this.$store.dispatch('cluster/promptModal', { component: 'AddonConfigConfirmationDialog', resources: [value => resolve(value)] });
+      });
+    },
+
     async saveOverride(btnCb) {
       if ( this.errors ) {
         clear(this.errors);
+      }
+
+      if (this.isEdit && this.liveValue?.spec?.kubernetesVersion !== this.value?.spec?.kubernetesVersion) {
+        const shouldContinue = await this.showAddonConfirmation();
+
+        if (!shouldContinue) {
+          return btnCb('cancelled');
+        }
       }
 
       for (const [index] of this.machinePools.entries()) { // validator machine config
@@ -1316,7 +1460,8 @@ export default {
           set(rkeConfig.chartValues, name, userValues);
         }
       });
-    }
+    },
+    get
   },
 };
 </script>
@@ -1335,20 +1480,28 @@ export default {
     :done-route="doneRoute"
     :apply-hooks="applyHooks"
     :generate-yaml="generateYaml"
+    class="rke2"
     @done="done"
     @finish="saveOverride"
     @cancel="cancel"
     @error="e=>errors = e"
   >
+    <Banner
+      v-if="isEdit"
+      color="warning"
+    >
+      <span v-html="t('cluster.banner.rke2-k3-reprovisioning', {}, true)" />
+    </Banner>
     <SelectCredential
       v-if="needCredential"
       v-model="credentialId"
       :mode="mode"
       :provider="provider"
       :cancel="cancelCredential"
+      :showing-form="showForm"
     />
 
-    <div v-if="credentialId || !needCredential" class="mt-20">
+    <div v-if="showForm" class="mt-20">
       <NameNsDescription
         v-if="!isView"
         v-model="value"
@@ -1359,6 +1512,10 @@ export default {
         description-label="cluster.description.label"
         description-placeholder="cluster.description.placeholder"
       />
+
+      <Banner v-if="appsOSWarning" color="error">
+        {{ appsOSWarning }}
+      </Banner>
 
       <template v-if="hasMachinePools">
         <div class="clearfix">
@@ -1418,30 +1575,40 @@ export default {
         <Tab name="basic" label-key="cluster.tabs.basic" :weight="11" @active="refreshYamls">
           <Banner v-if="!haveArgInfo" color="warning" label="Configuration information is not available for the selected Kubernetes version.  The options available in this screen will be limited, you may want to use the YAML editor." />
           <Banner v-if="showk8s21LegacyWarning" color="warning" :label="t('cluster.legacyWarning')" />
-          <div class="row">
-            <div class="col" :class="{'span-4': showCni, 'span-6': !showCni}">
+          <div class="row mb-10">
+            <div class="col span-6">
               <LabeledSelect
                 v-model="value.spec.kubernetesVersion"
                 :mode="mode"
                 :options="versionOptions"
                 label-key="cluster.kubernetesVersion.label"
               />
+              <div v-if="showK3sTechPreviewWarning" class="k3s-tech-preview-info">
+                {{ t('cluster.k3s.techPreview') }}
+              </div>
             </div>
-            <div v-if="showCni" class="col span-4">
+            <div v-if="showCloudProvider" class="col span-6">
+              <LabeledSelect
+                v-model="agentConfig['cloud-provider-name']"
+                :mode="mode"
+                :disabled="clusterIsAlreadyCreated"
+                :options="cloudProviderOptions"
+                :label="t('cluster.rke2.cloudProvider.label')"
+              />
+            </div>
+          </div>
+          <div v-if="showCni" :style="{'align-items':'center'}" class="row">
+            <div class="col span-6">
               <LabeledSelect
                 v-model="serverConfig.cni"
                 :mode="mode"
+                :disabled="clusterIsAlreadyCreated"
                 :options="serverArgs.cni.options"
                 :label="t('cluster.rke2.cni.label')"
               />
             </div>
-            <div v-if="showCloudProvider" class="col" :class="{'span-4': showCni, 'span-6': !showCni}">
-              <LabeledSelect
-                v-model="agentConfig['cloud-provider-name']"
-                :mode="mode"
-                :options="cloudProviderOptions"
-                :label="t('cluster.rke2.cloudProvider.label')"
-              />
+            <div v-if="serverConfig.cni === 'cilium' || serverConfig.cni === 'multus,cilium'" class="col">
+              <Checkbox v-model="ciliumIpv6" :mode="mode" :label="t('cluster.rke2.address.ipv6.enable')" />
             </div>
           </div>
           <template v-if="showVsphereNote">
@@ -1500,7 +1667,7 @@ export default {
             <div class="col span-12 mt-20">
               <Checkbox v-if="serverArgs['secrets-encryption']" v-model="serverConfig['secrets-encryption']" :mode="mode" label="Encrypt Secrets" />
               <Checkbox v-model="value.spec.enableNetworkPolicy" :mode="mode" :label="t('cluster.rke2.enableNetworkPolicy.label')" />
-              <Checkbox v-if="agentArgs.selinux" v-model="agentConfig.selinux" :mode="mode" label="SELinux" />
+              <!-- <Checkbox v-if="agentArgs.selinux" v-model="agentConfig.selinux" :mode="mode" label="SELinux" /> -->
             </div>
           </div>
 
@@ -1563,7 +1730,7 @@ export default {
             </div>
           </div>
 
-          <template v-if="false && rkeConfig.etcd.disableSnapshots !== true">
+          <template v-if="rkeConfig.etcd.disableSnapshots !== true">
             <div class="spacer" />
 
             <RadioGroup
@@ -1576,7 +1743,7 @@ export default {
             />
 
             <S3Config
-              v-if="rkeConfig.etcd.s3"
+              v-if="s3Backup"
               v-model="rkeConfig.etcd.s3"
               :namespace="value.metadata.namespace"
               :register-before-hook="registerBeforeHook"
@@ -1604,12 +1771,17 @@ export default {
         <Tab v-if="haveArgInfo" name="networking" label-key="cluster.tabs.networking">
           <h3>
             {{ t('cluster.rke2.address.header') }}
+            <i v-tooltip="t('cluster.rke2.address.tooltip')" class="icon icon-info" />
           </h3>
+          <Banner v-if="showIpv6Warning" color="warning">
+            {{ t('cluster.rke2.address.ipv6.warning') }}
+          </Banner>
           <div class="row mb-20">
             <div v-if="serverArgs['cluster-cidr']" class="col span-6">
               <LabeledInput
                 v-model="serverConfig['cluster-cidr']"
                 :mode="mode"
+                :disabled="clusterIsAlreadyCreated"
                 :label="t('cluster.rke2.address.clusterCidr.label')"
               />
             </div>
@@ -1617,6 +1789,7 @@ export default {
               <LabeledInput
                 v-model="serverConfig['service-cidr']"
                 :mode="mode"
+                :disabled="clusterIsAlreadyCreated"
                 :label="t('cluster.rke2.address.serviceCidr.label')"
               />
             </div>
@@ -1627,6 +1800,7 @@ export default {
               <LabeledInput
                 v-model="serverConfig['cluster-dns']"
                 :mode="mode"
+                :disabled="clusterIsAlreadyCreated"
                 :label="t('cluster.rke2.address.dns.label')"
               />
             </div>
@@ -1634,6 +1808,7 @@ export default {
               <LabeledInput
                 v-model="serverConfig['cluster-domain']"
                 :mode="mode"
+                :disabled="clusterIsAlreadyCreated"
                 :label="t('cluster.rke2.address.domain.label')"
               />
             </div>
@@ -1664,6 +1839,9 @@ export default {
         </Tab>
 
         <Tab name="upgrade" label-key="cluster.tabs.upgrade">
+          <Banner v-if="get(rkeConfig, 'upgradeStrategy.controlPlaneDrainOptions.deleteEmptyDirData')" color="warning">
+            {{ t('cluster.rke2.deleteEmptyDir', {}, true) }}
+          </Banner>
           <div class="row">
             <div class="col span-6">
               <h3>Control Plane</h3>
@@ -1714,6 +1892,7 @@ export default {
             v-model="registrySecret"
             :register-before-hook="registerBeforeHook"
             :hook-priority="1"
+            :mode="mode"
             in-store="management"
             :allow-ssh="false"
             :allow-rke="true"
@@ -1738,6 +1917,12 @@ export default {
         </Tab>
 
         <Tab name="addons" label-key="cluster.tabs.addons" @active="showAddons">
+          <Banner
+            v-if="isEdit"
+            color="warning"
+          >
+            {{ t('cluster.addOns.dependencyBanner') }}
+          </Banner>
           <div v-if="versionInfo && addonVersions.length" :key="addonsRev">
             <div v-for="v in addonVersions" :key="v._key">
               <h3>{{ labelForAddon(v.name) }}</h3>
@@ -1882,3 +2067,10 @@ export default {
     </template>
   </CruResource>
 </template>
+
+<style lang="scss" scoped>
+  .k3s-tech-preview-info {
+    color: var(--error);
+    padding-top: 10px;
+  }
+</style>

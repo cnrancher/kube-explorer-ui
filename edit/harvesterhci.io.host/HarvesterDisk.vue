@@ -81,15 +81,14 @@ export default {
     forceFormattedDisabled() {
       const lastFormattedAt = this.value?.blockDevice?.status?.deviceStatus?.fileSystem?.LastFormattedAt;
       const fileSystem = this.value?.blockDevice?.status?.deviceStatus?.fileSystem.type;
-      const partitioned = this.value?.blockDevice?.status?.deviceStatus?.partitioned;
 
       const systems = ['ext4', 'XFS'];
 
-      if (systems.includes(fileSystem)) {
-        return false;
-      } else if (lastFormattedAt) {
+      if (lastFormattedAt) {
         return true;
-      } else if (!fileSystem && !partitioned) {
+      } else if (systems.includes(fileSystem)) {
+        return false;
+      } else if (!fileSystem) {
         return true;
       } else {
         return !this.canEditPath;
@@ -110,6 +109,18 @@ export default {
 
     isFormatted() {
       return !!this.value?.blockDevice?.status?.deviceStatus?.fileSystem?.LastFormattedAt;
+    },
+
+    formattedBannerLabel() {
+      const system = this.value?.blockDevice?.status?.deviceStatus?.fileSystem?.type;
+
+      const label = this.t('harvester.host.disk.lastFormattedAt.info');
+
+      if (system) {
+        return `${ label } ${ this.t('harvester.host.disk.fileSystem.info', { system }) }`;
+      } else {
+        return label;
+      }
     },
 
     provisionPhase() {
@@ -135,7 +146,7 @@ export default {
     <Banner
       v-if="isFormatted"
       color="info"
-      :label="t('harvester.host.disk.lastFormattedAt.info')"
+      :label="formattedBannerLabel"
     />
     <div v-if="!value.isNew">
       <div class="row">
@@ -185,19 +196,11 @@ export default {
       <hr class="mt-10" />
     </div>
     <div class="row mt-10">
-      <div class="col span-6">
+      <div class="col span-12">
         <LabeledInput
           v-model="value.displayName"
           :label="t('generic.name')"
           :disabled="true"
-        />
-      </div>
-      <div class="col span-6">
-        <LabeledInput
-          v-model="value.path"
-          :label="t('harvester.host.disk.path.label')"
-          :disabled="!canEditPath"
-          required
         />
       </div>
     </div>

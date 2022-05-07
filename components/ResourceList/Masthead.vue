@@ -5,7 +5,13 @@ import TypeDescription from '@/components/TypeDescription';
 import { get } from '@/utils/object';
 import { AS, _YAML } from '@/config/query-params';
 
+/**
+ * Resource List Masthead component.
+ */
 export default {
+
+  name: 'MastheadResourceList',
+
   components: {
     Favorite,
     TypeDescription,
@@ -98,7 +104,7 @@ export default {
         return this.isYamlCreatable;
       }
 
-      return this.schema && this._isCreatable && this.$store.getters['type-map/optionsFor'](this.resource).canEditYaml;
+      return this.schema && this._isCreatable && this.$store.getters['type-map/optionsFor'](this.resource).canYaml;
     },
 
     _isCreatable() {
@@ -146,7 +152,6 @@ export default {
         <div class="actions">
           <slot name="extraActions">
           </slot>
-
           <n-link
             v-if="hasEditComponent && _isCreatable"
             :to="_createLocation"

@@ -1,6 +1,5 @@
 <script>
 import Tip from '@/components/Tip';
-import { HCI } from '@/config/types';
 import { HCI_SETTING } from '@/config/settings';
 import Password from '@/components/form/Password';
 import MessageLink from '@/components/MessageLink';
@@ -66,19 +65,11 @@ export default {
     },
 
     toCA() {
-      return `${ HCI.SETTING }/${ HCI_SETTING.ADDITIONAL_CA }?mode=edit`;
+      return `${ HCI_SETTING.ADDITIONAL_CA }?mode=edit`;
     }
   },
 
   watch: {
-    'parseDefaultValue.type'(neu) {
-      delete this.parseDefaultValue.accessKeyId;
-      delete this.parseDefaultValue.secretAccessKey;
-      delete this.parseDefaultValue.bucketName;
-      delete this.parseDefaultValue.bucketRegion;
-      delete this.parseDefaultValue.endpoint;
-    },
-
     value: {
       handler(neu) {
         const parseDefaultValue = JSON.parse(neu.value);
@@ -95,6 +86,15 @@ export default {
 
   methods: {
     update() {
+      if (!this.isS3) {
+        delete this.parseDefaultValue.accessKeyId;
+        delete this.parseDefaultValue.secretAccessKey;
+        delete this.parseDefaultValue.bucketName;
+        delete this.parseDefaultValue.bucketRegion;
+        delete this.parseDefaultValue.virtualHostedStyle;
+        delete this.parseDefaultValue.cert;
+      }
+
       const value = JSON.stringify(this.parseDefaultValue);
 
       this.$set(this.value, 'value', value);
@@ -155,7 +155,7 @@ export default {
               target="_blank"
               prefix-label="harvester.setting.message.ca.prefix"
               middle-label="harvester.setting.message.ca.middle"
-              suffic-label="harvester.setting.message.ca.suffic"
+              suffix-label="harvester.setting.message.ca.suffix"
             />
           </Tip>
         </div>

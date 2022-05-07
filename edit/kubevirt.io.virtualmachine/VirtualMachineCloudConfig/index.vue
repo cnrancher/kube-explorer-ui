@@ -35,6 +35,10 @@ export default {
       type:    String,
       default: ''
     },
+    viewCode: {
+      type:    Boolean,
+      default: false
+    }
   },
 
   data() {
@@ -129,6 +133,10 @@ export default {
       }
     },
 
+    updateTemplateId(type, id) {
+      this.$emit('updateDataTemplateId', type, id);
+    },
+
     show(templateType) {
       this.templateType = templateType;
       this.$modal.show('createCloudTemplate');
@@ -186,11 +194,13 @@ export default {
         ref="userTemplate"
         v-model="userScript"
         type="user"
+        :view-code="viewCode"
         :mode="mode"
         :config-id="configUserId"
         :options="optionUser"
         @show="show"
         @update="update"
+        @updateTemplateId="updateTemplateId"
       />
     </div>
 

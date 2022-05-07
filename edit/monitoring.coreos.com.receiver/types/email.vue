@@ -1,4 +1,12 @@
 <script>
+/**
+ * The Route and Receiver resources are deprecated. Going forward,
+ * routes and receivers should be configured within AlertmanagerConfigs.
+ * Any updates to receiver configuration forms, such as Slack/email/PagerDuty
+ * etc, should be made to the receiver forms that are based on the
+ * AlertmanagerConfig resource, which has a different API. The new forms are
+ * located in @/edit/monitoring.coreos.com.alertmanagerconfig/types.
+ */
 import LabeledInput from '@/components/form/LabeledInput';
 import Checkbox from '@/components/form/Checkbox';
 import TLS from '../tls';
@@ -35,7 +43,7 @@ export default {
     </div>
     <div class="row mb-20">
       <div class="col span-6">
-        <LabeledInput v-model="value.to" :mode="mode" label="Default Recepient Address" placeholder="e.g. admin@example.com" />
+        <LabeledInput v-model="value.to" :mode="mode" label="Default Recipient Address" placeholder="e.g. admin@example.com" />
       </div>
       <div class="col span-6">
         <Checkbox v-model="value.send_resolved" :mode="mode" class="mt-20" label="Enable send resolved alerts" />

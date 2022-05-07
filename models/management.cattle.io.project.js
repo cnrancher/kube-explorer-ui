@@ -2,6 +2,26 @@ import { DEFAULT_PROJECT, SYSTEM_PROJECT } from '@/config/labels-annotations';
 import { MANAGEMENT, NAMESPACE, NORMAN } from '@/config/types';
 import HybridModel from '@/plugins/steve/hybrid-class';
 
+function clearResourceQuotas(val, type) {
+  if (val[type]?.limit && Object.keys(val[type].limit).length) {
+    Object.keys(val[type].limit).forEach((key) => {
+      if (!val[type].limit[key]) {
+        delete val[type].limit[key];
+      }
+    });
+  }
+
+  if ( val[type]?.limit && !Object.keys(val[type].limit).length ) {
+    delete val[type].limit;
+  }
+
+  if ( val[type] && !Object.keys(val[type]).length ) {
+    delete val[type];
+  }
+
+  return val[type];
+}
+
 export default class Project extends HybridModel {
   get isSystem() {
     return this.metadata?.labels?.[SYSTEM_PROJECT] === 'true';
@@ -68,8 +88,8 @@ export default class Project extends HybridModel {
         clusterId:                     this.$rootGetters['currentCluster'].id,
         creatorId:                     this.$rootGetters['auth/principalId'],
         containerDefaultResourceLimit: this.spec.containerDefaultResourceLimit,
-        namespaceDefaultResourceQuota: this.spec.namespaceDefaultResourceQuota,
-        resourceQuota:                 this.spec.resourceQuota,
+        namespaceDefaultResourceQuota: clearResourceQuotas(JSON.parse(JSON.stringify(this.spec)), 'namespaceDefaultResourceQuota'),
+        resourceQuota:                 clearResourceQuotas(JSON.parse(JSON.stringify(this.spec)), 'resourceQuota'),
       }, { root: true });
 
       // The backend seemingly required both labels/annotation and metadata.labels/annotations or it doesn't save the labels and annotations
@@ -91,10 +111,25 @@ export default class Project extends HybridModel {
       normanProject.setLabels(this.metadata.labels);
       normanProject.description = this.spec.description;
       normanProject.containerDefaultResourceLimit = this.spec.containerDefaultResourceLimit;
-      normanProject.namespaceDefaultResourceQuota = this.spec.namespaceDefaultResourceQuota;
-      normanProject.resourceQuota = this.spec.resourceQuota;
+      normanProject.namespaceDefaultResourceQuota = clearResourceQuotas(JSON.parse(JSON.stringify(this.spec)), 'namespaceDefaultResourceQuota');
+      normanProject.resourceQuota = clearResourceQuotas(JSON.parse(JSON.stringify(this.spec)), 'resourceQuota');
 
       return normanProject;
     })();
+  }
+
+  // users with permissions for projectroletemplatebindings should be able to manage members on projects
+  get canUpdate() {
+    return super.canUpdate || this.canUpdateProjectBindings;
+  }
+
+  get canUpdateProjectBindings() {
+    const schema = this.$rootGetters[`rancher/schemaFor`](NORMAN.PROJECT_ROLE_TEMPLATE_BINDING);
+
+    return schema?.collectionMethods.includes('POST');
+  }
+
+  get canEditYaml() {
+    return this.schema?.resourceMethods?.find(x => x === 'blocked-PUT') ? false : super.canUpdate;
   }
 }

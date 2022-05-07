@@ -1,4 +1,12 @@
 <script>
+/**
+ * The Route and Receiver resources are deprecated. Going forward,
+ * routes and receivers should be configured within AlertmanagerConfigs.
+ * Any updates to receiver configuration forms, such as Slack/email/PagerDuty
+ * etc, should be made to the receiver forms that are based on the
+ * AlertmanagerConfig resource, which has a different API. The new forms are
+ * located in @/edit/monitoring.coreos.com.alertmanagerconfig/types.
+ */
 import LabeledInput from '@/components/form/LabeledInput';
 import Checkbox from '@/components/form/Checkbox';
 import Banner from '@/components/Banner';
@@ -24,7 +32,6 @@ export default {
   data() {
     this.$set(this.value, 'http_config', this.value.http_config || {});
     this.$set(this.value, 'send_resolved', this.value.send_resolved || false);
-
     const isDriverUrl = this.value.url === MS_TEAMS_URL || this.value.url === ALIBABA_CLOUD_SMS_URL;
 
     return { showNamespaceBanner: isDriverUrl && this.mode !== _VIEW };

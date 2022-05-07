@@ -34,13 +34,29 @@ export default {
           this.copied = false;
         }, 2000);
       });
+      this.$emit('copied');
     },
+  },
+
+  computed: {
+    tooltip() {
+      const content = this.copied ? 'Copied!' : 'Click to Copy';
+
+      return {
+        content,
+        hideOnTargetClick: false
+      };
+    }
   }
 };
 </script>
 
 <template>
-  <code v-tooltip="{'content': copied ? 'Copied!' : 'Click to Copy', hideOnTargetClick: false}" class="copy" @click.stop.prevent="clicked"><slot /></code>
+  <code
+    v-tooltip="tooltip"
+    class="copy"
+    @click.stop.prevent="clicked"
+  ><slot /></code>
 </template>
 
 <style lang="scss" scoped>

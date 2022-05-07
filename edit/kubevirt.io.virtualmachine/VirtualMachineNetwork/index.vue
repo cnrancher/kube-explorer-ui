@@ -2,7 +2,7 @@
 import InfoBox from '@/components/InfoBox';
 import Base from '@/edit/kubevirt.io.virtualmachine/VirtualMachineNetwork/base';
 
-import { HCI } from '@/config/types';
+import { NETWORK_ATTACHMENT } from '@/config/types';
 import { sortBy } from '@/utils/sort';
 import { clone } from '@/utils/object';
 import { randomStr } from '@/utils/string';
@@ -39,7 +39,7 @@ export default {
     },
 
     networkOption() {
-      const choices = this.$store.getters['harvester/all'](HCI.NETWORK_ATTACHMENT);
+      const choices = this.$store.getters['harvester/all'](NETWORK_ATTACHMENT);
 
       const out = sortBy(
         choices.map((N) => {
@@ -63,14 +63,14 @@ export default {
 
   methods: {
     add(type) {
-      const name = this.getName();
+      const name = this.generateName();
 
       const neu = {
         name,
-        model:       'virtio',
-        type:        'bridge',
-        networkName:  this.networkName,
-        newCreateId:      randomStr(10),
+        networkName:  '',
+        model:        'virtio',
+        type:         'bridge',
+        newCreateId:  randomStr(10),
       };
 
       this.rows.push(neu);
@@ -82,7 +82,7 @@ export default {
       this.update();
     },
 
-    getName() {
+    generateName() {
       let name = '';
       let hasUsed = true;
 
