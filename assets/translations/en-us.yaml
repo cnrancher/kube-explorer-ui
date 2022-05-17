@@ -1673,6 +1673,8 @@ cluster:
   toggle:
     v1: RKE1
     v2: RKE2/K3s
+  validation:
+    iamInstanceProfileName: If the Amazon cloud provider is selected the "IAM Instance Profile Name" must be defined for each Machine Pool
 
 clusterIndexPage:
   hardwareResourceGauge:
@@ -2809,7 +2811,7 @@ monitoring:
     empty: Alerts have not been configured for any accessible namespaces.
     getStarted: Get started by clicking Create to configure an alert.
     receiverTooltip: This route will direct alerts to the selected receiver, which must be defined in the same AlertmanagerConfig.
-    deprecationWarning: The Route and Receiver resources are deprecated. We recommend configuring alerts in AlertmanagerConfigs.
+    deprecationWarning: The Route and Receiver resources are deprecated. Going forward, routes and receivers should not be managed as separate Kubernetes resources on this page. They should be configured as YAML fields in an AlertmanagerConfig resource.
     routeInfo: This form supports configuring one route that directs traffic to a receiver. Alerts can be directed to more receiver(s) by configuring child routes in YAML.
     receiverFormNames:
       create: Create Receiver in AlertmanagerConfig
@@ -2883,6 +2885,7 @@ monitoringReceiver:
     modifyNamespace: If <pre class="inline-block m-0 p-0 vertical-middle">rancher-alerting-drivers</pre> default values were changed, please update the url below in the format http://&lt;new_service_name&gt;.&lt;new_namespace&gt.svc.&lt;port&gt/&lt;path&gt
     banner: To use MS Teams or SMS you will need to have at least one instance of <pre class="inline-block m-0 p-0 vertical-middle">rancher-alerting-drivers</pre> installed first.
     add:
+      selectWebhookType: Select Webhook Type
       generic: Generic
       msTeams: MS Teams
       alibabaCloudSms: SMS
@@ -2901,6 +2904,12 @@ monitoringReceiver:
     bearerTokenFile:
       label: Bearer Token File
       placeholder: e.g. ./user_token
+  tls:
+    ca: Secret with CA
+    cert: Secret with Client Cert
+    key: Secret with Client Key
+    serverName: Server Name
+    serverNameTooltip: Used to verify the hostname for the targets.
   shared:
     proxyUrl:
       label: Proxy URL
@@ -2921,12 +2930,19 @@ alertmanagerConfigReceiver:
 monitoringRoute:
   groups:
     label: Group By
+    addGroupByLabel: Labels to Group Alerts By
   info: This is the top-level Route used by Alertmanager as the default destination for any Alerts that do not match any other Routes. This Route must exist and cannot be deleted.
   interval:
     label: Group Interval
   matching:
     info: The root route has to match everything so matching cannot be configured.
     label: Match
+    addMatcher: Add Matcher
+    matchType: Match Type
+    name: Name
+    nameTooltip: Label to match
+    value: Value
+    valueTooltip: Label value to match
   receiver:
     type: Receiver Type
     add: Add Receiver

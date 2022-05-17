@@ -11,7 +11,6 @@ import YamlEditor, { EDITOR_MODES } from '@/components/YamlEditor';
 import CreateEditView from '@/mixins/create-edit-view';
 import jsyaml from 'js-yaml';
 import ButtonDropdown from '@/components/ButtonDropdown';
-import AddWebhookButton from '@/edit/monitoring.coreos.com.alertmanagerconfig/types/webhook.add.vue';
 import { _CREATE, _VIEW } from '@/config/query-params';
 
 export const RECEIVERS_TYPES = [
@@ -51,8 +50,6 @@ export const RECEIVERS_TYPES = [
     title:        'monitoringReceiver.webhook.title',
     key:          'webhookConfigs',
     logo:         require(`~/assets/images/vendor/webhook.svg`),
-    banner:       'webhook.banner',
-    addButton:    'webhook.add'
   },
   {
     name:  'custom',
@@ -66,7 +63,6 @@ export const RECEIVERS_TYPES = [
 
 export default {
   components: {
-    AddWebhookButton,
     ArrayListGrouped,
     Banner,
     ButtonDropdown,
@@ -152,12 +148,20 @@ export default {
       EDITOR_MODES,
       expectedFields,
       fileFound:            false,
-      receiver:             {},
       receiverTypes:        RECEIVERS_TYPES,
       suffixYaml,
       view:                 _VIEW,
       yamlError:            '',
     };
+  },
+
+  mounted() {
+    if (this.mode === this.create) {
+      if (!this.alertmanagerConfigResource.spec.receivers) {
+        this.alertmanagerConfigResource.spec.receivers = [];
+      }
+      this.alertmanagerConfigResource.spec.receivers.push(this.value);
+    }
   },
 
   computed: {
@@ -228,10 +232,6 @@ export default {
       this.$router.push(this.alertmanagerConfigResource.getAlertmanagerConfigDetailRoute());
     },
 
-    redirectToReceiverDetail() {
-      this.$router.push(this.alertmanagerConfigResource.getReceiverDetailLink(this.value.name));
-    },
-
     createAddOptions(receiverType) {
       return receiverType.addOptions.map();
     },
@@ -242,7 +242,7 @@ export default {
 <template>
   <CruResource
     class="receiver"
-    :done-route="doneRoute"
+    :done-route="alertmanagerConfigResource.getAlertmanagerConfigDetailRoute()"
     :mode="mode"
     :resource="alertmanagerConfigResource"
     :subtypes="[]"
@@ -250,10 +250,7 @@ export default {
     :errors="errors"
     :cancel-event="true"
     @error="e=>errors = e"
-    @finish="() => {
-      saveOverride()
-      redirectToReceiverDetail()
-    }"
+    @finish="saveOverride()"
     @cancel="redirectAfterCancel"
   >
     <div class="row mb-10">
@@ -294,12 +291,6 @@ export default {
           :editor-mode="editorMode"
         />
         <div v-else>
-          <component
-            :is="getComponent(receiverType.banner)"
-            v-if="receiverType.banner"
-            :model="value[receiverType.key]"
-            :mode="mode"
-          />
           <ArrayListGrouped
             v-model="value[receiverType.key]"
             class="namespace-list"
@@ -313,12 +304,6 @@ export default {
                 :value="props.row.value"
                 :mode="mode"
                 :namespace="alertmanagerConfigNamespace"
-              />
-            </template>
-            <template v-if="receiverType.key === 'webhookConfigs'" #add>
-              <AddWebhookButton
-                :model="value['webhookConfigs']"
-                :mode="mode"
               />
             </template>
           </ArrayListGrouped>

@@ -13,7 +13,9 @@ import { DEFAULT_WORKSPACE } from '@/models/provisioning.cattle.io.cluster';
 
 import { findBy, removeObject, clear } from '@/utils/array';
 import { createYaml } from '@/utils/create-yaml';
-import { clone, diff, set, get } from '@/utils/object';
+import {
+  clone, diff, set, get, isEmpty
+} from '@/utils/object';
 import { allHash } from '@/utils/promise';
 import { sortBy } from '@/utils/sort';
 import { camelToTitle, nlToBr } from '@/utils/string';
@@ -331,9 +333,7 @@ export default {
     },
 
     agentConfig() {
-      // The one we want is the first one with no selector.
-      // If there are multiple with no selector, that will fall under the unsupported message below.
-      return this.value.spec.rkeConfig.machineSelectorConfig.find(x => !x.machineLabelSelector).config;
+      return this.value.agentConfig;
     },
 
     showK3sTechPreviewWarning() {
@@ -826,7 +826,10 @@ export default {
   watch: {
     s3Backup(neu) {
       if ( neu ) {
-        set(this.rkeConfig.etcd, 's3', {});
+        // We need to make sure that s3 doesn't already have an existing value otherwise when editing a cluster with s3 defined this will clear s3.
+        if (isEmpty(this.rkeConfig.etcd?.s3)) {
+          set(this.rkeConfig.etcd, 's3', {});
+        }
       } else {
         set(this.rkeConfig.etcd, 's3', null);
       }
@@ -1122,6 +1125,14 @@ export default {
 
         if (!shouldContinue) {
           return btnCb('cancelled');
+        }
+      }
+
+      if (this.value.cloudProvider === 'aws') {
+        const missingProfileName = this.machinePools.some(mp => !mp.config.iamInstanceProfile);
+
+        if (missingProfileName) {
+          this.errors.push(this.t('cluster.validation.iamInstanceProfileName', {}, true));
         }
       }
 
@@ -1556,6 +1567,7 @@ export default {
               <MachinePool
                 ref="pool"
                 :value="obj"
+                :cluster="value"
                 :mode="mode"
                 :provider="provider"
                 :credential-id="credentialId"
@@ -1716,6 +1728,8 @@ export default {
             <div class="col span-6">
               <LabeledInput
                 v-model="rkeConfig.etcd.snapshotScheduleCron"
+                type="cron"
+                placeholder="0 * * * *"
                 :mode="mode"
                 :label="t('cluster.rke2.etcd.snapshotScheduleCron.label')"
               />
