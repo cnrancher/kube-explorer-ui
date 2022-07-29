@@ -15,6 +15,8 @@ import WorkspaceSwitcher from './WorkspaceSwitcher';
 import TopLevelMenu from './TopLevelMenu';
 import Jump from './Jump';
 import { allHash } from '@shell/utils/promise';
+import Identicon from 'identicon.js';
+import { md5 } from '@shell/utils/crypto';
 
 const PAGE_HEADER_ACTION = 'page-action';
 
@@ -163,6 +165,12 @@ export default {
       };
     },
 
+    defaultAvatar() {
+      const hash = md5('Unknown', 'hex');
+      const out = `data:image/png;base64,${ new Identicon(hash, 80, 0.01).toString() }`;
+
+      return out;
+    }
   },
 
   watch: {
@@ -490,7 +498,8 @@ export default {
         >
           <div class="user-image text-right hand">
             <img v-if="principal && principal.avatarSrc" :src="principal.avatarSrc" :class="{'avatar-round': principal.roundAvatar}" width="36" height="36" />
-            <i v-else class="icon icon-user icon-3x avatar" />
+            <!-- <i v-else class="icon icon-user icon-3x avatar" /> -->
+            <img v-else :src="defaultAvatar" width="36" height="36" />
           </div>
           <template slot="popover" class="user-menu">
             <ul class="list-unstyled dropdown" @click.stop="showMenu(false)">
