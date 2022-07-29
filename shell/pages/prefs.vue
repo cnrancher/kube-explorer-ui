@@ -6,7 +6,7 @@ import BackLink from '@shell/components/BackLink';
 import BackRoute from '@shell/mixins/back-link';
 import ButtonGroup from '@shell/components/ButtonGroup';
 import { Checkbox } from '@components/Form/Checkbox';
-import LandingPagePreference from '@shell/components/LandingPagePreference';
+// import LandingPagePreference from '@shell/components/LandingPagePreference';
 import {
   mapPref, THEME, KEYMAP, DATE_FORMAT, TIME_FORMAT, ROWS_PER_PAGE, HIDE_DESC, SHOW_PRE_RELEASE, MENU_MAX_CLUSTERS,
   VIEW_IN_API, ALL_NAMESPACES, THEME_SHORTCUT, PLUGIN_DEVELOPER, SCALE_POOL_PROMPT
@@ -18,7 +18,7 @@ import LocaleSelector from '@shell/components/LocaleSelector';
 export default {
   layout:     'plain',
   components: {
-    BackLink, ButtonGroup, LabeledSelect, Checkbox, LandingPagePreference, LocaleSelector
+    BackLink, ButtonGroup, LabeledSelect, Checkbox, LocaleSelector
   },
   mixins: [BackRoute],
   data() {
@@ -205,7 +205,7 @@ export default {
       </div>
     </div>
     <!-- Login landing page -->
-    <div
+    <!-- <div
       v-if="!isSingleProduct"
       class="mt-10 mb-10"
     >
@@ -214,7 +214,7 @@ export default {
       <LandingPagePreference
         data-testid="prefs__landingPagePreference"
       />
-    </div>
+    </div> -->
     <!-- Display Settings -->
     <div class="mt-10 mb-10">
       <hr>
@@ -330,7 +330,7 @@ export default {
       />
     </div>
     <!-- Helm Charts -->
-    <div
+    <!-- <div
       v-if="!isSingleProduct"
       class="col mt-10 mb-40"
     >
@@ -341,7 +341,7 @@ export default {
         data-testid="prefs__helmOptions"
         :options="helmOptions"
       />
-    </div>
+    </div> -->
   </div>
 </template>
 
