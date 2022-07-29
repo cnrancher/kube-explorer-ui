@@ -85,14 +85,14 @@ export default {
       }
 
       // Only show for Cluster Explorer or Global Apps (not configuration)
-      const canSetAsHome = product.inStore === 'cluster' || (product.inStore === 'management' && product.category !== 'configuration');
+      // const canSetAsHome = product.inStore === 'cluster' || (product.inStore === 'management' && product.category !== 'configuration');
 
-      if (canSetAsHome) {
-        pageActions.push({
-          labelKey: 'nav.header.setLoginPage',
-          action:   SET_LOGIN_ACTION
-        });
-      }
+      // if (canSetAsHome) {
+      //   pageActions.push({
+      //     labelKey: 'nav.header.setLoginPage',
+      //     action:   SET_LOGIN_ACTION
+      //   });
+      // }
 
       return pageActions;
     },
@@ -562,14 +562,14 @@ export default {
             />
           </template>
         </div>
-        <n-link v-if="showClusterTools" tag="div" class="tools" :to="{name: 'c-cluster-explorer-tools', params: {cluster: clusterId}}">
+        <!-- <n-link v-if="showClusterTools" tag="div" class="tools" :to="{name: 'c-cluster-explorer-tools', params: {cluster: clusterId}}">
           <a class="tools-button" @click="collapseAll()">
             <i class="icon icon-gear" />
             <span>{{ t('nav.clusterTools') }}</span>
           </a>
-        </n-link>
+        </n-link> -->
         <div v-if="showProductFooter" class="footer">
-          <nuxt-link
+          <!-- <nuxt-link
             :to="supportLink"
             class="pull-right"
           >
@@ -581,7 +581,7 @@ export default {
             class="clip version text-muted"
           >
             {{ displayVersion }}
-          </span>
+          </span> -->
 
           <span v-if="isSingleProduct">
             <v-popover
@@ -611,9 +611,9 @@ export default {
             </v-popover>
           </span>
         </div>
-        <div v-else class="version text-muted">
+        <!-- <div v-else class="version text-muted">
           {{ displayVersion }}
-        </div>
+        </div> -->
       </nav>
       <main v-if="clusterReady">
         <nuxt class="outlet" />
