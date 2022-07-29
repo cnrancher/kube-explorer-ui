@@ -420,20 +420,21 @@ export default {
       class="footer"
     >
       <!-- support link -->
-      <router-link
+      <!-- <router-link
         :to="supportLink"
         class="pull-right"
       >
         {{ t('nav.support', {hasSupport: true}) }}
-      </router-link>
+      </router-link> -->
       <!-- version number -->
+      <!--
       <span
         v-clean-tooltip="{content: displayVersion, placement: 'top'}"
         class="clip version text-muted"
       >
         {{ displayVersion }}
       </span>
-
+      -->
       <!-- locale selector -->
       <span v-if="isSingleProduct">
         <v-popover
@@ -467,6 +468,7 @@ export default {
       </span>
     </div>
     <!-- SideNav footer alternative -->
+    <!--
     <div
       v-else
       class="version text-muted flex"
@@ -487,6 +489,7 @@ export default {
         </span>
       </template>
     </div>
+    -->
   </nav>
 </template>
 

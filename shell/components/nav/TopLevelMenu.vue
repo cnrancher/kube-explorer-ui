@@ -488,7 +488,7 @@ export default {
         <div class="body">
           <div>
             <!-- Home button -->
-            <div @click="hide()">
+            <!-- <div @click="hide()">
               <router-link
                 class="option cluster selector home"
                 :to="{ name: 'home' }"
@@ -507,7 +507,7 @@ export default {
                   {{ t('nav.home') }}
                 </div>
               </router-link>
-            </div>
+            </div> -->
             <!-- Search bar -->
             <div
               v-if="showClusterSearch"
@@ -544,6 +544,7 @@ export default {
           </div>
 
           <!-- Harvester extras -->
+          <!--
           <template v-if="hciApps.length">
             <div class="category" />
             <div>
@@ -578,7 +579,7 @@ export default {
               </router-link>
             </div>
           </template>
-
+          -->
           <!-- Cluster menu -->
           <template v-if="clusters && !!clusters.length">
             <div
@@ -763,6 +764,7 @@ export default {
           </template>
 
           <div class="category">
+            <!--
             <template v-if="multiClusterApps.length">
               <div
                 class="category-title"
@@ -819,7 +821,7 @@ export default {
                 </router-link>
               </div>
             </template>
-
+            -->
             <!-- App menu -->
             <template v-if="configurationApps.length">
               <div
@@ -867,6 +869,7 @@ export default {
               {{ t('nav.support', {hasSupport}) }}
             </router-link>
           </div>
+          <!--
           <div
             class="version"
             :class="{'version-small': largeAboutText}"
@@ -878,6 +881,7 @@ export default {
               {{ aboutText }}
             </router-link>
           </div>
+          -->
         </div>
       </div>
     </transition>

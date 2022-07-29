@@ -619,14 +619,14 @@ export default {
         /></span>
       </div>
       <div :style="{'flex':1}" />
-      <div v-if="showClusterTools">
+      <!-- <div v-if="showClusterTools">
         <router-link
           :to="{name: 'c-cluster-explorer-tools'}"
           class="cluster-tools-link"
         >
           <span>{{ t('nav.clusterTools') }}</span>
         </router-link>
-      </div>
+      </div> -->
       <ConfigBadge
         v-if="currentCluster.canUpdate"
         :cluster="currentCluster"
