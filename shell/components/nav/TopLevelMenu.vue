@@ -364,6 +364,7 @@ export default {
         <div class="body">
           <div>
             <!-- Home button -->
+            <!--
             <nuxt-link
               class="option cluster selector home"
               :to="{ name: 'home' }"
@@ -382,7 +383,7 @@ export default {
                 {{ t('nav.home') }}
               </div>
             </nuxt-link>
-
+            -->
             <!-- Search bar -->
             <div
               v-if="showClusterSearch"
@@ -415,6 +416,7 @@ export default {
           </div>
 
           <!-- Harvester extras -->
+          <!--
           <template v-if="hciApps.length">
             <div class="category" />
             <div>
@@ -448,7 +450,7 @@ export default {
               </nuxt-link>
             </div>
           </template>
-
+          -->
           <!-- Cluster menu -->
           <template v-if="clusters && !!clusters.length">
             <div
@@ -580,6 +582,7 @@ export default {
           </template>
 
           <div class="category">
+            <!--
             <template v-if="multiClusterApps.length">
               <div
                 class="category-title"
@@ -634,7 +637,7 @@ export default {
                 </nuxt-link>
               </div>
             </template>
-
+            -->
             <!-- App menu -->
             <template v-if="configurationApps.length">
               <div
@@ -681,6 +684,7 @@ export default {
               {{ t('nav.support', {hasSupport}) }}
             </nuxt-link>
           </div>
+          <!--
           <div
             class="version"
             @click="hide()"
@@ -691,6 +695,7 @@ export default {
               {{ t('about.title') }}
             </nuxt-link>
           </div>
+          -->
         </div>
       </div>
     </transition>
