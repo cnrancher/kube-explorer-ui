@@ -36,11 +36,13 @@ export default {
         return 'c/local/harvester/harvesterhci.io.dashboard';
       }
 
-      if (this.isSingleProduct?.afterLoginRoute) {
-        return this.$router.resolve(this.isSingleProduct.afterLoginRoute).href;
-      }
+      // if (this.isSingleProduct?.afterLoginRoute) {
+      //   return this.$router.resolve(this.isSingleProduct.afterLoginRoute).href;
+      // }
 
-      return this.$router.resolve({ name: 'home' }).href;
+      // return this.$router.resolve({ name: 'home' }).href;
+
+      return process.client ? document.querySelector('head > base').href : '/';
     },
 
     displayError() {
