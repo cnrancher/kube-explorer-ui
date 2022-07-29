@@ -214,7 +214,7 @@ export default function(dir, _appConfig) {
   }
 
   let routerBasePath = '/';
-  let resourceBase = '';
+  let resourceBase = './';
   let outputDir = 'dist';
 
   if ( typeof process.env.ROUTER_BASE !== 'undefined' ) {
