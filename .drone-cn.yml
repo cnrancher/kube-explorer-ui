@@ -41,7 +41,7 @@ steps:
       from_secret: aws_access_secret
     source: dist/${DRONE_TAG}.tar.gz
     strip_prefix: dist/
-    target: ${DRONE_BRANCH}/kube-explorer-ui
+    target: release-2.7-cn/kube-explorer-ui
 
   when:
     event:
