@@ -78,6 +78,13 @@ export function equivalentWatch(a, b) {
   return true;
 }
 
+function getBasePath() {
+  const baseUrl = document.querySelector('head > base').href;
+  const basePath = `${ baseUrl.slice(0, -'/dashboard/'.length).replace(window.location.origin, '') }`;
+
+  return basePath;
+}
+
 function queueChange({ getters, state }, { data, revision }, load, label) {
   const type = getters.normalizeType(data.type);
 
@@ -139,13 +146,15 @@ export const actions = {
 
     state.debugSocket && console.info(`Subscribe [${ getters.storeName }]`); // eslint-disable-line no-console
 
-    const url = `${ state.config.baseUrl }/subscribe`;
+    // const url = `${ state.config.baseUrl }/subscribe`;
+    const url = `${ state.config.baseUrl.startsWith('/') ? `${ getBasePath() }${ state.config.baseUrl }` : state.config.baseUrl }/subscribe`;
 
     if ( socket ) {
       socket.setAutoReconnect(true);
       socket.setUrl(url);
     } else {
-      socket = new Socket(`${ state.config.baseUrl }/subscribe`);
+      // socket = new Socket(`${ state.config.baseUrl }/subscribe`);
+      socket = new Socket(`${ state.config.baseUrl.startsWith('/') ? `${ getBasePath() }${ state.config.baseUrl }` : state.config.baseUrl }/subscribe`);
 
       commit('setSocket', socket);
       socket.addEventListener(EVENT_CONNECTED, (e) => {
