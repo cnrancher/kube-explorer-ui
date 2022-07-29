@@ -1,6 +1,6 @@
 import Steve from '@shell/plugins/steve';
 import {
-  COUNT, NAMESPACE, NORMAN, MANAGEMENT, FLEET, UI, VIRTUAL_HARVESTER_PROVIDER, HCI, DEFAULT_WORKSPACE
+  COUNT, NAMESPACE, MANAGEMENT, FLEET, UI, VIRTUAL_HARVESTER_PROVIDER, HCI, DEFAULT_WORKSPACE
 } from '@shell/config/types';
 import { CLUSTER as CLUSTER_PREF, NAMESPACE_FILTERS, LAST_NAMESPACE, WORKSPACE } from '@shell/store/prefs';
 import { allHash, allHashSettled } from '@shell/utils/promise';
@@ -10,7 +10,7 @@ import { filterBy, findBy } from '@shell/utils/array';
 import { BOTH, CLUSTER_LEVEL, NAMESPACED } from '@shell/store/type-map';
 import { NAME as EXPLORER } from '@shell/config/product/explorer';
 import { TIMED_OUT, LOGGED_OUT, _FLAGGED, UPGRADED } from '@shell/config/query-params';
-import { setBrand, setVendor } from '@shell/config/private-label';
+// import { setBrand, setVendor } from '@shell/config/private-label';
 import { addParam } from '@shell/utils/url';
 import { SETTING } from '@shell/config/settings';
 import semver from 'semver';
@@ -581,16 +581,16 @@ export const actions = {
 
     console.log('Loading management...'); // eslint-disable-line no-console
 
-    try {
-      await dispatch('rancher/findAll', { type: NORMAN.PRINCIPAL, opt: { url: 'principals' } });
-    } catch (e) {
-      // Maybe not Rancher
-    }
+    // try {
+    //   await dispatch('rancher/findAll', { type: NORMAN.PRINCIPAL, opt: { url: 'principals' } });
+    // } catch (e) {
+    //   // Maybe not Rancher
+    // }
 
     let res = await allHashSettled({
       mgmtSubscribe:  dispatch('management/subscribe'),
       mgmtSchemas:    dispatch('management/loadSchemas', true),
-      rancherSchemas: dispatch('rancher/loadSchemas', true),
+      // rancherSchemas: dispatch('rancher/loadSchemas', true),
     });
 
     const promises = {
@@ -604,20 +604,20 @@ export const actions = {
       features: dispatch('features/loadServer'),
     };
 
-    const isRancher = res.rancherSchemas.status === 'fulfilled' && !!getters['management/schemaFor'](MANAGEMENT.PROJECT);
+    // const isRancher = res.rancherSchemas.status === 'fulfilled' && !!getters['management/schemaFor'](MANAGEMENT.PROJECT);
 
-    if ( isRancher ) {
-      promises['prefs'] = dispatch('prefs/loadServer');
-      promises['rancherSubscribe'] = dispatch('rancher/subscribe');
-    }
+    // if ( isRancher ) {
+    //   promises['prefs'] = dispatch('prefs/loadServer');
+    //   promises['rancherSubscribe'] = dispatch('rancher/subscribe');
+    // }
 
     if ( getters['management/schemaFor'](COUNT) ) {
       promises['counts'] = dispatch('management/findAll', { type: COUNT });
     }
 
-    if ( getters['management/canList'](MANAGEMENT.SETTING) ) {
-      promises['settings'] = dispatch('management/findAll', { type: MANAGEMENT.SETTING });
-    }
+    // if ( getters['management/canList'](MANAGEMENT.SETTING) ) {
+    //   promises['settings'] = dispatch('management/findAll', { type: MANAGEMENT.SETTING });
+    // }
 
     if ( getters['management/schemaFor'](NAMESPACE) ) {
       promises['namespaces'] = dispatch('management/findAll', { type: NAMESPACE });
@@ -637,17 +637,17 @@ export const actions = {
       isMultiCluster = false;
     }
 
-    const pl = res.settings?.find(x => x.id === 'ui-pl')?.value;
-    const brand = res.settings?.find(x => x.id === SETTING.BRAND)?.value;
+    // const pl = res.settings?.find(x => x.id === 'ui-pl')?.value;
+    // const brand = res.settings?.find(x => x.id === SETTING.BRAND)?.value;
     const systemNamespaces = res.settings?.find(x => x.id === SETTING.SYSTEM_NAMESPACES);
 
-    if ( pl ) {
-      setVendor(pl);
-    }
+    // if ( pl ) {
+    //   setVendor(pl);
+    // }
 
-    if (brand) {
-      setBrand(brand);
-    }
+    // if (brand) {
+    //   setBrand(brand);
+    // }
 
     if (systemNamespaces) {
       const namespace = (systemNamespaces.value || systemNamespaces.default)?.split(',');
@@ -658,7 +658,7 @@ export const actions = {
     commit('managementChanged', {
       ready: true,
       isMultiCluster,
-      isRancher,
+      // isRancher,
     });
 
     if ( res.workspaces ) {
@@ -669,7 +669,7 @@ export const actions = {
       });
     }
 
-    console.log(`Done loading management; isRancher=${ isRancher }; isMultiCluster=${ isMultiCluster }`); // eslint-disable-line no-console
+    // console.log(`Done loading management; isRancher=${ isRancher }; isMultiCluster=${ isMultiCluster }`); // eslint-disable-line no-console
   },
 
   async loadCluster({

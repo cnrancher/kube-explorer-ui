@@ -5,7 +5,7 @@ import BackLink from '@shell/components/BackLink';
 import BackRoute from '@shell/mixins/back-link';
 import ButtonGroup from '@shell/components/ButtonGroup';
 import { Checkbox } from '@components/Form/Checkbox';
-import LandingPagePreference from '@shell/components/LandingPagePreference';
+// import LandingPagePreference from '@shell/components/LandingPagePreference';
 import {
   mapPref, THEME, KEYMAP, DEV, DATE_FORMAT, TIME_FORMAT, ROWS_PER_PAGE, HIDE_DESC, SHOW_PRE_RELEASE, MENU_MAX_CLUSTERS
 } from '@shell/store/prefs';
@@ -15,7 +15,7 @@ import { addObject } from '@shell/utils/array';
 export default {
   layout:     'plain',
   components: {
-    BackLink, ButtonGroup, LabeledSelect, Checkbox, LandingPagePreference
+    BackLink, ButtonGroup, LabeledSelect, Checkbox
   },
   mixins:     [BackRoute],
   computed:   {
@@ -153,11 +153,11 @@ export default {
     <div class="mt-10">
       <t k="prefs.theme.autoDetail" :pm="pm" :am="am" />
     </div>
-    <div v-if="!isSingleProduct">
+    <!-- <div v-if="!isSingleProduct">
       <hr />
       <h4 v-t="'prefs.landing.label'" />
       <LandingPagePreference />
-    </div>
+    </div> -->
     <hr />
     <h4 v-t="'prefs.formatting'" />
     <div class="row">
@@ -222,7 +222,7 @@ export default {
       </div>
     </div>
 
-    <div v-if="!isSingleProduct">
+    <!-- <div v-if="!isSingleProduct">
       <hr />
       <div class="row mb-20">
         <div class="col span-12">
@@ -230,7 +230,7 @@ export default {
           <ButtonGroup v-model="showPreRelease" :options="helmOptions" />
         </div>
       </div>
-    </div>
+    </div> -->
   </div>
 </template>
 
