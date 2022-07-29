@@ -1,12 +1,14 @@
 <script>
-import { SEEN_WHATS_NEW } from '@shell/store/prefs';
-import { getVersionInfo } from '@shell/utils/version';
+// import { SEEN_WHATS_NEW } from '@shell/store/prefs';
+// import { getVersionInfo } from '@shell/utils/version';
+import { NAME as EXPLORER } from '@shell/config/product/explorer';
 
-const validRoute = (route, router) => {
-  return !!route && !!router.resolve(route)?.resolved?.matched?.length;
-};
+// const validRoute = (route, router) => {
+//   return !!route && !!router.resolve(route)?.resolved?.matched?.length;
+// };
 
 export default {
+  /*
   middleware({
     redirect, store, app, route
   } ) {
@@ -40,6 +42,18 @@ export default {
     }
 
     return redirect(dashboardHome);
+  }
+  */
+  fetch({ store, redirect }) {
+    const id = store.getters['defaultClusterId'] || 'local';
+
+    redirect({
+      name:   'c-cluster-product',
+      params: {
+        cluster: id,
+        product: EXPLORER,
+      }
+    });
   }
 };
 </script>
