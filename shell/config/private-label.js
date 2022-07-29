@@ -8,6 +8,7 @@ export const DOCS_BASE = 'https://rancher.com/docs/rancher/v2.6/en';
 const STANDARD_VENDOR = 'Rancher';
 const STANDARD_PRODUCT = 'Explorer';
 const CUSTOM_VENDOR = { suse: 'SUSE Rancher' };
+const DEFAULT_VENDOR = 'Dashboard'; // add for kube-explorer
 
 let mode = STANDARD;
 let vendor = STANDARD_VENDOR;
@@ -60,6 +61,11 @@ export function getVendor() {
     }
 
     return STANDARD_VENDOR;
+  }
+
+  // add for kube-explorer
+  if (vendor === STANDARD_VENDOR) {
+    return DEFAULT_VENDOR;
   }
 
   return vendor;
