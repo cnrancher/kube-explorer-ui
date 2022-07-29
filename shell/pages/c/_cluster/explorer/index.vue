@@ -3,7 +3,7 @@ import DashboardMetrics from '@shell/components/DashboardMetrics';
 import { mapGetters } from 'vuex';
 import { setPromiseResult } from '@shell/utils/promise';
 import AlertTable from '@shell/components/AlertTable';
-import { Banner } from '@components/Banner';
+// import { Banner } from '@components/Banner';
 import { parseSi, createMemoryValues } from '@shell/utils/units';
 import {
   NAME,
@@ -32,7 +32,7 @@ import Tab from '@shell/components/Tabbed/Tab';
 import { allDashboardsExist } from '@shell/utils/grafana';
 import EtcdInfoBanner from '@shell/components/EtcdInfoBanner';
 import metricPoller from '@shell/mixins/metric-poller';
-import EmberPage from '@shell/components/EmberPage';
+// import EmberPage from '@shell/components/EmberPage';
 import ResourceSummary, { resourceCounts } from '@shell/components/ResourceSummary';
 import HardwareResourceGauge from '@shell/components/HardwareResourceGauge';
 import { isEmpty } from '@shell/utils/object';
@@ -66,8 +66,8 @@ export default {
     Tab,
     Tabbed,
     AlertTable,
-    Banner,
-    EmberPage,
+    // Banner,
+    // EmberPage,
     ConfigBadge,
     EventsTable,
   },
@@ -378,14 +378,14 @@ export default {
         </div>
       </div>
     </header>
-    <Banner
+    <!-- <Banner
       v-if="!hideClusterToolsTip"
       :closable="true"
       class="cluster-tools-tip"
       color="info"
       label-key="cluster.toolsTip"
       @close="hideClusterToolsTip = true"
-    />
+    /> -->
     <div
       class="cluster-dashboard-glance"
     >
@@ -404,12 +404,12 @@ export default {
         <span><LiveDate :value="currentCluster.metadata.creationTimestamp" :add-suffix="true" :show-tooltip="true" /></span>
       </div>
       <div :style="{'flex':1}" />
-      <div v-if="!monitoringStatus.v2 && !monitoringStatus.v1">
+      <!-- <div v-if="!monitoringStatus.v2 && !monitoringStatus.v1">
         <n-link :to="{name: 'c-cluster-explorer-tools'}" class="monitoring-install">
           <i class="icon icon-gear" />
           <span>{{ t('glance.installMonitoring') }}</span>
         </n-link>
-      </div>
+      </div> -->
       <div v-if="monitoringStatus.v1">
         <span>{{ t('glance.v1MonitoringInstalled') }}</span>
       </div>
@@ -439,9 +439,9 @@ export default {
       </div>
     </div>
 
-    <div v-if="hasV1Monitoring" id="ember-anchor" class="mt-20">
+    <!-- <div v-if="hasV1Monitoring" id="ember-anchor" class="mt-20">
       <EmberPage inline="ember-anchor" :src="v1MonitoringURL" />
-    </div>
+    </div> -->
 
     <div class="mt-30">
       <Tabbed @changed="tabChange">
