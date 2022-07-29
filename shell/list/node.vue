@@ -13,7 +13,7 @@ import { FilterArgs, PaginationFilterField, PaginationParamFilter } from '@shell
 
 import {
   CAPI,
-  MANAGEMENT, METRIC, NODE, NORMAN, POD
+  METRIC, NODE, POD
 } from '@shell/config/types';
 import { allHash } from '@shell/utils/promise';
 import { GROUP_RESOURCES, mapPref } from '@shell/store/prefs';
@@ -66,9 +66,9 @@ export default defineComponent({
       // podConsumedUsage = podConsumed / podConsumedUsage. podConsumed --> pods. allPods.filter((pod) => pod.spec.nodeName === this.name)
       canViewPods:        !!this.$store.getters[`cluster/schemaFor`](POD),
       // Norman node required for Drain/Cordon/Uncordon action
-      canViewNormanNodes: !!this.$store.getters[`rancher/schemaFor`](NORMAN.NODE),
+      // canViewNormanNodes: !!this.$store.getters[`rancher/schemaFor`](NORMAN.NODE),
       // Mgmt Node required to find Norman node
-      canViewMgmtNodes:   !!this.$store.getters[`management/schemaFor`](MANAGEMENT.NODE),
+      // canViewMgmtNodes:   !!this.$store.getters[`management/schemaFor`](MANAGEMENT.NODE),
       // Required for ssh / download key actions
       canViewMachines:    !!this.$store.getters[`management/schemaFor`](CAPI.MACHINE),
       // Required for CPU and RAM columns
@@ -182,13 +182,13 @@ export default defineComponent({
 
       const hash: { [key: string]: Promise<any>} = {};
 
-      if (this.canViewMgmtNodes) {
-        hash.mgmtNodes = this.$fetchType(MANAGEMENT.NODE, [], 'management');
-      }
+      // if (this.canViewMgmtNodes) {
+      //   hash.mgmtNodes = this.$fetchType(MANAGEMENT.NODE, [], 'management');
+      // }
 
-      if (this.canViewNormanNodes) {
-        hash.normanNodes = this.$fetchType(NORMAN.NODE, [], 'rancher');
-      }
+      // if (this.canViewNormanNodes) {
+      //   hash.normanNodes = this.$fetchType(NORMAN.NODE, [], 'rancher');
+      // }
 
       if (this.canViewMachines) {
         hash.machines = this.$fetchType(CAPI.MACHINE, [], 'management');
@@ -214,24 +214,24 @@ export default defineComponent({
         return;
       }
 
-      if (this.canViewMgmtNodes && this.canViewNormanNodes) {
-        // We only fetch mgmt node to get norman node. We only fetch node to get node actions
-        // See https://github.com/rancher/dashboard/issues/10743
-        const opt: ActionFindPageArgs = {
-          force,
-          pagination: new FilterArgs({
-            filters: PaginationParamFilter.createMultipleFields(this.rows.map((r: any) => new PaginationFilterField({
-              field: 'status.nodeName',
-              value: r.id
-            }))),
-          })
-        };
+      // if (this.canViewMgmtNodes && this.canViewNormanNodes) {
+      //   // We only fetch mgmt node to get norman node. We only fetch node to get node actions
+      //   // See https://github.com/rancher/dashboard/issues/10743
+      //   const opt: ActionFindPageArgs = {
+      //     force,
+      //     pagination: new FilterArgs({
+      //       filters: PaginationParamFilter.createMultipleFields(this.rows.map((r: any) => new PaginationFilterField({
+      //         field: 'status.nodeName',
+      //         value: r.id
+      //       }))),
+      //     })
+      //   };
 
-        this.$store.dispatch(`management/findPage`, { type: MANAGEMENT.NODE, opt })
-          .then(() => {
-            this.$store.dispatch(`rancher/findAll`, { type: NORMAN.NODE, opt: { force } });
-          });
-      }
+      //   this.$store.dispatch(`management/findPage`, { type: MANAGEMENT.NODE, opt })
+      //     .then(() => {
+      //       this.$store.dispatch(`rancher/findAll`, { type: NORMAN.NODE, opt: { force } });
+      //     });
+      // }
 
       if (this.canViewMachines) {
         const namespace = this.currentCluster.provClusterId?.split('/')[0];
