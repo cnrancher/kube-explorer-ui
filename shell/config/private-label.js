@@ -11,7 +11,7 @@ const CUSTOM_VENDOR = {
   suse: 'Rancher Prime',
   csp:  'SUSE Rancher'
 };
-
+const DEFAULT_VENDOR = 'Dashboard'; // add for kube-explorer
 let mode = STANDARD;
 let vendor = STANDARD_VENDOR;
 let product = STANDARD_PRODUCT;
@@ -63,6 +63,11 @@ export function getVendor() {
     }
 
     return STANDARD_VENDOR;
+  }
+
+  // add for kube-explorer
+  if (vendor === STANDARD_VENDOR) {
+    return DEFAULT_VENDOR;
   }
 
   return vendor;
