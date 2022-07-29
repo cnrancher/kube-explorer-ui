@@ -209,7 +209,7 @@ export const mutations = {
 
 export const actions = {
   init({ state, commit, dispatch }) {
-    let selected = this.$cookies.get(LOCALE, { parseJSON: false });
+    let selected = this.$cookies.get(LOCALE, { parseJSON: false }) ?? window.localStorage.getItem(LOCALE);
 
     // We might be using a locale that is loaded by a plugin that is no longer loaded
     const exists = !!state.available.find(loc => loc === selected);
@@ -315,6 +315,7 @@ export const actions = {
       sameSite: true,
       secure:   true,
     });
+    window.localStorage.setItem(LOCALE, locale);
   },
 
   toggleNone({ state, dispatch }) {
