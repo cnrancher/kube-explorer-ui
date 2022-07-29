@@ -1,7 +1,6 @@
 <script>
 import BrandImage from '@shell/components/BrandImage';
 import ClusterProviderIcon from '@shell/components/ClusterProviderIcon';
-import IconOrSvg from '../IconOrSvg';
 import { mapGetters } from 'vuex';
 import $ from 'jquery';
 import { CAPI, MANAGEMENT } from '@shell/config/types';
@@ -19,8 +18,7 @@ export default {
 
   components: {
     BrandImage,
-    ClusterProviderIcon,
-    IconOrSvg
+    ClusterProviderIcon
   },
 
   data() {
@@ -252,7 +250,7 @@ export default {
           </div>
         </div>
         <div class="body">
-          <div @click="hide()">
+          <!-- <div @click="hide()">
             <nuxt-link
               class="option cluster selector home"
               :to="{ name: 'home' }"
@@ -270,7 +268,7 @@ export default {
                 {{ t('nav.home') }}
               </div>
             </nuxt-link>
-          </div>
+          </div> -->
           <template v-if="clusters && !!clusters.length">
             <div class="category">
               {{ t('nav.categories.explore') }}
@@ -334,7 +332,7 @@ export default {
             </div>
           </template>
 
-          <template v-if="multiClusterApps.length">
+          <!-- <template v-if="multiClusterApps.length">
             <div class="category">
               {{ t('nav.categories.multiCluster') }}
             </div>
@@ -396,7 +394,7 @@ export default {
                 <div>{{ a.label }}</div>
               </nuxt-link>
             </div>
-          </template>
+          </template> -->
           <div class="pad" />
         </div>
         <div class="footer">
@@ -408,14 +406,14 @@ export default {
               {{ t('nav.support', {hasSupport}) }}
             </nuxt-link>
           </div>
-          <div @click="hide()">
+          <!-- <div @click="hide()">
             <nuxt-link
               :to="{ name: 'about' }"
               class="version"
             >
               {{ t('about.title') }}
             </nuxt-link>
-          </div>
+          </div> -->
         </div>
       </div>
     </transition>
