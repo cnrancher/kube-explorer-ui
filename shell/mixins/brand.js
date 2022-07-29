@@ -127,9 +127,23 @@ export default {
   },
   head() {
     let cssClass = `overflow-hidden dashboard-body`;
+    let title = getVendor();
+
+    if (process.client) {
+      const m = window.location.pathname.match(/\/proxy\/explorer\/([^/]+)\//);
+
+      if (m?.length === 2) {
+        const t = m[1]?.split('.')[0];
+
+        if (t) {
+          title = t;
+        }
+      }
+    }
+
     const out = {
       bodyAttrs: { class: `theme-${ this.theme } ${ cssClass }` },
-      title:     getVendor(),
+      title,
     };
 
     if (getVendor() === 'Harvester') {
