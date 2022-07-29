@@ -443,6 +443,7 @@ export default {
       </template>
     </div>
     <!-- Cluster tools -->
+    <!--
     <n-link
       v-if="showClusterTools"
       tag="div"
@@ -457,26 +458,30 @@ export default {
         <span>{{ t('nav.clusterTools') }}</span>
       </a>
     </n-link>
+    -->
     <!-- SideNav footer area (seems to be tied to harvester) -->
     <div
       v-if="showProductFooter"
       class="footer"
     >
       <!-- support link -->
+      <!--
       <nuxt-link
         :to="supportLink"
         class="pull-right"
       >
         {{ t('nav.support', {hasSupport: true}) }}
       </nuxt-link>
+      -->
       <!-- version number -->
+      <!--
       <span
         v-clean-tooltip="{content: displayVersion, placement: 'top'}"
         class="clip version text-muted"
       >
         {{ displayVersion }}
       </span>
-
+      -->
       <!-- locale selector -->
       <span v-if="isSingleProduct">
         <v-popover
@@ -510,6 +515,7 @@ export default {
       </span>
     </div>
     <!-- SideNav footer alternative -->
+    <!--
     <div
       v-else
       class="version text-muted flex"
@@ -531,6 +537,7 @@ export default {
         </span>
       </template>
     </div>
+    -->
   </nav>
 </template>
 

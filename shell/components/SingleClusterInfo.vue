@@ -143,6 +143,7 @@ export default {
           {{ t('nav.categories.explore') }}
         </nuxt-link>
       </div>
+      <!--
       <div
         v-if="showClusterTools"
         class="glance-item"
@@ -154,6 +155,7 @@ export default {
           {{ t('nav.clusterTools') }}
         </nuxt-link>
       </div>
+      -->
     </div>
   </div>
 </template>
