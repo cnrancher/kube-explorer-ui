@@ -1,5 +1,5 @@
 import { BACK_TO } from '@shell/config/local-storage';
-import { setBrand, setVendor } from '@shell/config/private-label';
+// import { setBrand, setVendor } from '@shell/config/private-label';
 import { NAME as EXPLORER } from '@shell/config/product/explorer';
 import {
   LOGGED_OUT, IS_SSO, TIMED_OUT, UPGRADED, _FLAGGED
@@ -10,7 +10,7 @@ import {
   DEFAULT_WORKSPACE,
   FLEET,
   MANAGEMENT,
-  NAMESPACE, NORMAN,
+  NAMESPACE,
   UI, VIRTUAL_HARVESTER_PROVIDER, HCI
 } from '@shell/config/types';
 import { BY_TYPE } from '@shell/plugins/dashboard-store/classify';
@@ -757,16 +757,16 @@ export const actions = {
 
     console.log('Loading management...'); // eslint-disable-line no-console
 
-    try {
-      await dispatch('rancher/findAll', { type: NORMAN.PRINCIPAL, opt: { url: 'principals' } });
-    } catch (e) {
-      // Maybe not Rancher
-    }
+    // try {
+    //   await dispatch('rancher/findAll', { type: NORMAN.PRINCIPAL, opt: { url: 'principals' } });
+    // } catch (e) {
+    //   // Maybe not Rancher
+    // }
 
     let res = await allHashSettled({
-      mgmtSubscribe:  dispatch('management/subscribe'),
-      mgmtSchemas:    dispatch('management/loadSchemas', true),
-      rancherSchemas: dispatch('rancher/loadSchemas', true),
+      mgmtSubscribe: dispatch('management/subscribe'),
+      mgmtSchemas:   dispatch('management/loadSchemas', true)
+      // rancherSchemas: dispatch('rancher/loadSchemas', true),
     });
 
     // Note - why aren't we watching anything fetched in the `promises` object?
@@ -787,22 +787,22 @@ export const actions = {
       MANAGEMENT.FEATURE,
     ];
 
-    const isRancher = res.rancherSchemas.status === 'fulfilled' && !!getters['management/schemaFor'](MANAGEMENT.PROJECT);
+    // const isRancher = res.rancherSchemas.status === 'fulfilled' && !!getters['management/schemaFor'](MANAGEMENT.PROJECT);
 
-    if ( isRancher ) {
-      promises['prefs'] = dispatch('prefs/loadServer');
-      promises['rancherSubscribe'] = dispatch('rancher/subscribe');
-    }
+    // if ( isRancher ) {
+    //   promises['prefs'] = dispatch('prefs/loadServer');
+    //   promises['rancherSubscribe'] = dispatch('rancher/subscribe');
+    // }
 
     if ( getters['management/schemaFor'](COUNT) ) {
       promises['counts'] = dispatch('management/findAll', { type: COUNT, opt: { watch: false } });
       toWatch.push(COUNT);
     }
 
-    if ( getters['management/canList'](MANAGEMENT.SETTING) ) {
-      promises['settings'] = dispatch('management/findAll', { type: MANAGEMENT.SETTING, opt: { watch: false } });
-      toWatch.push(MANAGEMENT.SETTING);
-    }
+    // if ( getters['management/canList'](MANAGEMENT.SETTING) ) {
+    //   promises['settings'] = dispatch('management/findAll', { type: MANAGEMENT.SETTING, opt: { watch: false } });
+    //   toWatch.push(MANAGEMENT.SETTING);
+    // }
 
     if ( getters['management/schemaFor'](NAMESPACE) ) {
       promises['namespaces'] = dispatch('management/findAll', { type: NAMESPACE, opt: { watch: false } });
@@ -823,7 +823,7 @@ export const actions = {
       dispatch('management/watch', { type });
     });
 
-    const isMultiCluster = getters['isMultiCluster'];
+    // const isMultiCluster = getters['isMultiCluster'];
 
     // If the local cluster is a Harvester cluster and 'rancher-manager-support' is true, it means that the embedded Rancher is being used.
     const localCluster = res.clusters?.find((c) => c.id === 'local');
@@ -836,17 +836,17 @@ export const actions = {
       commit('isRancherInHarvester', isRancherInHarvester);
     }
 
-    const pl = res.settings?.find((x) => x.id === 'ui-pl')?.value;
-    const brand = res.settings?.find((x) => x.id === SETTING.BRAND)?.value;
+    // const pl = res.settings?.find((x) => x.id === 'ui-pl')?.value;
+    // const brand = res.settings?.find((x) => x.id === SETTING.BRAND)?.value;
     const systemNamespaces = res.settings?.find((x) => x.id === SETTING.SYSTEM_NAMESPACES);
 
-    if ( pl ) {
-      setVendor(pl);
-    }
+    // if ( pl ) {
+    //   setVendor(pl);
+    // }
 
-    if (brand) {
-      setBrand(brand);
-    }
+    // if (brand) {
+    //   setBrand(brand);
+    // }
 
     if (systemNamespaces) {
       const namespace = (systemNamespaces.value || systemNamespaces.default)?.split(',');
@@ -856,7 +856,7 @@ export const actions = {
 
     commit('managementChanged', {
       ready: true,
-      isRancher,
+      // isRancher,
     });
 
     if ( res.workspaces ) {
@@ -867,7 +867,7 @@ export const actions = {
       });
     }
 
-    console.log(`Done loading management; isRancher=${ isRancher }; isMultiCluster=${ isMultiCluster }`); // eslint-disable-line no-console
+    // console.log(`Done loading management; isRancher=${ isRancher }; isMultiCluster=${ isMultiCluster }`); // eslint-disable-line no-console
   },
 
   // Note:
