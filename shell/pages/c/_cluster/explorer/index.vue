@@ -477,7 +477,7 @@ export default {
         <i class="icon icon-warning" />
       </p>
       <div :style="{'flex':1}" />
-      <div v-if="!monitoringStatus.v2">
+      <!-- <div v-if="!monitoringStatus.v2">
         <n-link
           :to="{name: 'c-cluster-explorer-tools'}"
           class="monitoring-install"
@@ -485,7 +485,7 @@ export default {
           <i class="icon icon-gear" />
           <span>{{ t('glance.installMonitoring') }}</span>
         </n-link>
-      </div>
+      </div> -->
       <ConfigBadge
         v-if="currentCluster.canUpdate"
         :cluster="currentCluster"
