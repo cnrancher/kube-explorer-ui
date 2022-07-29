@@ -41,7 +41,7 @@ if [ -v EMBED_PKG ]; then
 fi
 
 echo "Update app router config..."
-find dist/* -maxdepth 1 -name "app.*.js" | head -n 1 | xargs sed -i.bak -e 's/base:decodeURI("\/dashboard\/")/base:decodeURI(document.querySelector("head > base").href.replace(window.location.origin, ""))/'
+find dist/* -maxdepth 1 -name "*.js" | xargs grep -l 'base:"/dashboard/"' | head -n 1 | xargs sed -i.bak -e 's/base:"\/dashboard\/"/base:decodeURI(document.querySelector("head > base").href.replace(window.location.origin, ""))/'
 
 echo "Destroying..."
 find $OUTPUT_DIR -name "index.html" -mindepth 2 -exec rm {} \;
