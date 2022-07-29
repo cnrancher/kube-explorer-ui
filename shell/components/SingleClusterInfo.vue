@@ -140,6 +140,7 @@ export default {
           {{ t('nav.categories.explore') }}
         </router-link>
       </div>
+      <!--
       <div
         v-if="showClusterTools"
         class="glance-item"
@@ -151,6 +152,7 @@ export default {
           {{ t('nav.clusterTools') }}
         </router-link>
       </div>
+      -->
     </div>
   </div>
 </template>

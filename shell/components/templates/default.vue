@@ -85,14 +85,14 @@ export default {
       }
 
       // Only show for Cluster Explorer or Global Apps (not configuration)
-      const canSetAsHome = product.inStore === 'cluster' || (product.inStore === 'management' && product.category !== 'configuration') || this.isRancherInHarvester;
+      // const canSetAsHome = product.inStore === 'cluster' || (product.inStore === 'management' && product.category !== 'configuration') || this.isRancherInHarvester;
 
-      if (canSetAsHome) {
-        pageActions.push({
-          labelKey: 'nav.header.setLoginPage',
-          action:   SET_LOGIN_ACTION
-        });
-      }
+      // if (canSetAsHome) {
+      //   pageActions.push({
+      //     labelKey: 'nav.header.setLoginPage',
+      //     action:   SET_LOGIN_ACTION
+      //   });
+      // }
 
       return pageActions;
     },

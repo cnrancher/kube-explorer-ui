@@ -504,7 +504,7 @@ export default {
             <i class="icon icon-terminal icon-lg" />
           </button>
 
-          <button
+          <!-- <button
             v-if="showKubeConfig"
             v-clean-tooltip="t('nav.kubeconfig.download')"
             :disabled="!kubeConfigEnabled"
@@ -514,9 +514,9 @@ export default {
             @click="currentCluster.downloadKubeConfig()"
           >
             <i class="icon icon-file icon-lg" />
-          </button>
+          </button> -->
 
-          <button
+          <!-- <button
             v-if="showCopyConfig"
             v-clean-tooltip="t('nav.kubeconfig.copy')"
             :disabled="!kubeConfigEnabled"
@@ -533,7 +533,7 @@ export default {
               v-else
               class="icon icon-copy icon-lg"
             />
-          </button>
+          </button> -->
         </template>
 
         <button
