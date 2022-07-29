@@ -89,5 +89,15 @@ export function setTitle() {
     const head = document.getElementsByTagName('head')[0];
 
     head.appendChild(link);
+  } else {
+    const m = window.location.pathname.match(/\/proxy\/explorer\/([^/]+)\//);
+
+    if (m?.length === 2) {
+      const t = m[1]?.split('.')[0];
+
+      if (t) {
+        document.title = t;
+      }
+    }
   }
 }
