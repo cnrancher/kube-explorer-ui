@@ -13,6 +13,9 @@ export default function({
     if ( csrf ) {
       config.headers['x-api-csrf'] = csrf;
     }
+    if ( config.url.startsWith('/') ) {
+      config.baseURL = `${ getBasePath() }`;
+    }
   });
 
   if ( isDev ) {
@@ -28,4 +31,16 @@ export default function({
     $axios.defaults.httpsAgent = insecureAgent;
     $axios.httpsAgent = insecureAgent;
   }
+}
+
+function getBasePath() {
+  if (window.__basePath__) {
+    return window.__basePath__;
+  }
+  const baseUrl = document.querySelector('head > base').href;
+  const basePath = `${ baseUrl.slice(0, -('/dashboard/'.length - 1)).replace(window.location.origin, '') }`;
+
+  window.__basePath__ = basePath;
+
+  return window.__basePath__;
 }
