@@ -34,7 +34,7 @@ import Tab from '@shell/components/Tabbed/Tab';
 import { allDashboardsExist } from '@shell/utils/grafana';
 import EtcdInfoBanner from '@shell/components/EtcdInfoBanner';
 import metricPoller from '@shell/mixins/metric-poller';
-import EmberPage from '@shell/components/EmberPage';
+// import EmberPage from '@shell/components/EmberPage';
 import ResourceSummary, { resourceCounts } from '@shell/components/ResourceSummary';
 import HardwareResourceGauge from '@shell/components/HardwareResourceGauge';
 import { isEmpty } from '@shell/utils/object';
@@ -72,7 +72,7 @@ export default {
     Tabbed,
     AlertTable,
     Banner,
-    EmberPage,
+    // EmberPage,
     ConfigBadge,
     EventsTable,
     SimpleBox,
@@ -482,7 +482,7 @@ export default {
         <i class="icon icon-warning" />
       </p>
       <div :style="{'flex':1}" />
-      <div v-if="!monitoringStatus.v2 && !monitoringStatus.v1">
+      <!-- <div v-if="!monitoringStatus.v2 && !monitoringStatus.v1">
         <n-link
           :to="{name: 'c-cluster-explorer-tools'}"
           class="monitoring-install"
@@ -490,7 +490,7 @@ export default {
           <i class="icon icon-gear" />
           <span>{{ t('glance.installMonitoring') }}</span>
         </n-link>
-      </div>
+      </div> -->
       <div v-if="monitoringStatus.v1">
         <span>{{ t('glance.v1MonitoringInstalled') }}</span>
       </div>
@@ -580,7 +580,7 @@ export default {
       </div>
     </div>
 
-    <div
+    <!-- <div
       v-if="hasV1Monitoring"
       id="ember-anchor"
       class="mt-20"
@@ -589,7 +589,7 @@ export default {
         inline="ember-anchor"
         :src="v1MonitoringURL"
       />
-    </div>
+    </div> -->
 
     <div class="mt-30">
       <Tabbed @changed="tabChange">
