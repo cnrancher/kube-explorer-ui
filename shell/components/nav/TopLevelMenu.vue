@@ -264,7 +264,7 @@ export default {
           </div>
         </div>
         <div class="body">
-          <div @click="hide()">
+          <!-- <div @click="hide()">
             <nuxt-link
               class="option cluster selector home"
               :to="{ name: 'home' }"
@@ -274,7 +274,7 @@ export default {
                 {{ t('nav.home') }}
               </div>
             </nuxt-link>
-          </div>
+          </div> -->
           <template v-if="clusters && !!clusters.length">
             <div class="category">
               {{ t('nav.categories.explore') }}
@@ -310,7 +310,7 @@ export default {
             </div>
           </template>
 
-          <template v-if="multiClusterApps.length">
+          <!-- <template v-if="multiClusterApps.length">
             <div class="category">
               {{ t('nav.categories.multiCluster') }}
             </div>
@@ -342,7 +342,7 @@ export default {
                 <div>{{ a.label }}</div>
               </nuxt-link>
             </div>
-          </template>
+          </template> -->
           <div class="pad"></div>
         </div>
         <div class="footer">
@@ -351,14 +351,14 @@ export default {
               {{ t('nav.support', {hasSupport}) }}
             </nuxt-link>
           </div>
-          <div @click="hide()">
+          <!-- <div @click="hide()">
             <nuxt-link
               v-tooltip="{ content: fullVersion, classes: 'footer-tooltip' }"
               :to="{ name: 'about' }"
               class="version"
               v-html="displayVersion"
             />
-          </div>
+          </div> -->
           <div v-if="showLocale">
             <v-popover
               popover-class="localeSelector"
