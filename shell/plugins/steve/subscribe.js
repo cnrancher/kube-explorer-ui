@@ -13,6 +13,13 @@ import day from 'dayjs';
 import { DATE_FORMAT, TIME_FORMAT } from '@shell/store/prefs';
 import { escapeHtml } from '@shell/utils/string';
 
+function getBasePath() {
+  const baseUrl = document.querySelector('head > base').href;
+  const basePath = `${ baseUrl.slice(0, -'/dashboard/'.length).replace(window.location.origin, '') }`;
+
+  return basePath;
+}
+
 export const NO_WATCH = 'NO_WATCH';
 export const NO_SCHEMA = 'NO_SCHEMA';
 
@@ -109,13 +116,15 @@ export const actions = {
 
     state.debugSocket && console.info(`Subscribe [${ getters.storeName }]`); // eslint-disable-line no-console
 
-    const url = `${ state.config.baseUrl }/subscribe`;
+    // const url = `${ state.config.baseUrl }/subscribe`;
+    const url = `${ state.config.baseUrl.startsWith('/') ? `${ getBasePath() }${ state.config.baseUrl }` : state.config.baseUrl }/subscribe`;
 
     if ( socket ) {
       socket.setAutoReconnect(true);
       socket.setUrl(url);
     } else {
-      socket = new Socket(`${ state.config.baseUrl }/subscribe`);
+      // socket = new Socket(`${ state.config.baseUrl }/subscribe`);
+      socket = new Socket(`${ state.config.baseUrl.startsWith('/') ? `${ getBasePath() }${ state.config.baseUrl }` : state.config.baseUrl }/subscribe`);
 
       commit('setSocket', socket);
       socket.addEventListener(EVENT_CONNECTED, (e) => {
