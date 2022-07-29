@@ -1,11 +1,9 @@
 import { REDIRECTED } from '@shell/config/cookies';
 import { NAME as EXPLORER } from '@shell/config/product/explorer';
-import {
-  SETUP, TIMED_OUT, UPGRADED, _FLAGGED, _UNFLAG
-} from '@shell/config/query-params';
-import { SETTING } from '@shell/config/settings';
-import { MANAGEMENT, NORMAN } from '@shell/config/types';
-import { _ALL_IF_AUTHED } from '@shell/plugins/dashboard-store/actions';
+import { TIMED_OUT, UPGRADED, _FLAGGED, _UNFLAG } from '@shell/config/query-params';
+// import { SETTING } from '@shell/config/settings';
+import { NORMAN } from '@shell/config/types';
+// import { _ALL_IF_AUTHED } from '@shell/plugins/dashboard-store/actions';
 import { applyProducts } from '@shell/store/type-map';
 import { findBy } from '@shell/utils/array';
 import { ClusterNotFoundError } from '@shell/utils/error';
@@ -13,7 +11,7 @@ import { get } from '@shell/utils/object';
 import { AFTER_LOGIN_ROUTE } from '@shell/store/prefs';
 import { NAME as VIRTUAL } from '@shell/config/product/harvester';
 import { BACK_TO } from '@shell/config/local-storage';
-import { setFavIcon, haveSetFavIcon } from '@shell/utils/favicon';
+// import { setFavIcon, haveSetFavIcon } from '@shell/utils/favicon';
 
 const getPackageFromRoute = (route) => {
   if (!route?.meta) {
@@ -95,71 +93,71 @@ export default async function({
   }
 
   // Initial ?setup=admin-password can technically be on any route
-  let initialPass = route.query[SETUP];
-  let firstLogin = null;
+  // let initialPass = route.query[SETUP];
+  // let firstLogin = null;
 
-  try {
-    // Load settings, which will either be just the public ones if not logged in, or all if you are
-    await store.dispatch('management/findAll', {
-      type: MANAGEMENT.SETTING,
-      opt:  {
-        load: _ALL_IF_AUTHED, url: `/v1/${ MANAGEMENT.SETTING }`, redirectUnauthorized: false
-      }
-    });
+  // try {
+  //   // Load settings, which will either be just the public ones if not logged in, or all if you are
+  //   await store.dispatch('management/findAll', {
+  //     type: MANAGEMENT.SETTING,
+  //     opt:  {
+  //       load: _ALL_IF_AUTHED, url: `/v1/${ MANAGEMENT.SETTING }`, redirectUnauthorized: false
+  //     }
+  //   });
 
-    // Set the favicon - use custom one from store if set
-    if (!haveSetFavIcon()) {
-      setFavIcon(store);
-    }
+  //   // Set the favicon - use custom one from store if set
+  //   if (!haveSetFavIcon()) {
+  //     setFavIcon(store);
+  //   }
 
-    const res = store.getters['management/byId'](MANAGEMENT.SETTING, SETTING.FIRST_LOGIN);
-    const plSetting = store.getters['management/byId'](MANAGEMENT.SETTING, SETTING.PL);
+  //   const res = store.getters['management/byId'](MANAGEMENT.SETTING, SETTING.FIRST_LOGIN);
+  //   const plSetting = store.getters['management/byId'](MANAGEMENT.SETTING, SETTING.PL);
 
-    firstLogin = res?.value === 'true';
+  //   firstLogin = res?.value === 'true';
 
-    if (!initialPass && plSetting?.value === 'Harvester') {
-      initialPass = 'admin';
-    }
-  } catch (e) {
-  }
+  //   if (!initialPass && plSetting?.value === 'Harvester') {
+  //     initialPass = 'admin';
+  //   }
+  // } catch (e) {
+  // }
 
-  if ( firstLogin === null ) {
-    try {
-      const res = await store.dispatch('rancher/find', {
-        type: 'setting',
-        id:   SETTING.FIRST_LOGIN,
-        opt:  { url: `/v3/settings/${ SETTING.FIRST_LOGIN }` }
-      });
+  // if ( firstLogin === null ) {
+  //   try {
+  //     const res = await store.dispatch('rancher/find', {
+  //       type: 'setting',
+  //       id:   SETTING.FIRST_LOGIN,
+  //       opt:  { url: `/v3/settings/${ SETTING.FIRST_LOGIN }` }
+  //     });
 
-      firstLogin = res?.value === 'true';
+  //     firstLogin = res?.value === 'true';
 
-      const plSetting = await store.dispatch('rancher/find', {
-        type: 'setting',
-        id:   SETTING.PL,
-        opt:  { url: `/v3/settings/${ SETTING.PL }` }
-      });
+  //     const plSetting = await store.dispatch('rancher/find', {
+  //       type: 'setting',
+  //       id:   SETTING.PL,
+  //       opt:  { url: `/v3/settings/${ SETTING.PL }` }
+  //     });
 
-      if (!initialPass && plSetting?.value === 'Harvester') {
-        initialPass = 'admin';
-      }
-    } catch (e) {
-    }
-  }
+  //     if (!initialPass && plSetting?.value === 'Harvester') {
+  //       initialPass = 'admin';
+  //     }
+  //   } catch (e) {
+  //   }
+  // }
 
-  // TODO show error if firstLogin and default pass doesn't work
-  if ( firstLogin ) {
-    const ok = await tryInitialSetup(store, initialPass);
+  // // TODO show error if firstLogin and default pass doesn't work
+  // if ( firstLogin ) {
+  //   const ok = await tryInitialSetup(store, initialPass);
 
-    if (ok) {
-      if (initialPass) {
-        store.dispatch('auth/setInitialPass', initialPass);
-      }
+  //   if (ok) {
+  //     if (initialPass) {
+  //       store.dispatch('auth/setInitialPass', initialPass);
+  //     }
 
-      return redirect({ name: 'auth-setup' });
-    } else {
-      return redirect({ name: 'auth-login' });
-    }
-  }
+  //     return redirect({ name: 'auth-setup' });
+  //   } else {
+  //     return redirect({ name: 'auth-login' });
+  //   }
+  // }
 
   // Make sure you're actually logged in
   function isLoggedIn(me) {
@@ -182,12 +180,12 @@ export default async function({
   }
 
   if ( store.getters['auth/enabled'] !== false && !store.getters['auth/loggedIn'] ) {
-    await store.dispatch('auth/getUser');
-    const v3User = store.getters['auth/v3User'] || {};
+    // await store.dispatch('auth/getUser');
+    // const v3User = store.getters['auth/v3User'] || {};
 
-    if (v3User?.mustChangePassword) {
-      return redirect({ name: 'auth-setup' });
-    }
+    // if (v3User?.mustChangePassword) {
+    //   return redirect({ name: 'auth-setup' });
+    // }
 
     // In newer versions the API calls return the auth state instead of having to make a new call all the time.
     const fromHeader = store.getters['auth/fromHeader'];
@@ -202,28 +200,29 @@ export default async function({
       notLoggedIn();
     } else {
       // Older versions look at principals and see what happens
-      try {
-        const me = await findMe(store);
+      // try {
+      //   const me = await findMe(store);
 
-        isLoggedIn(me);
-      } catch (e) {
-        const status = e?._status;
+      //   isLoggedIn(me);
+      // } catch (e) {
+      //   const status = e?._status;
 
-        if ( status === 404 ) {
-          noAuth();
-        } else {
-          if ( status === 401 ) {
-            notLoggedIn();
-          } else {
-            store.commit('setError', { error: e, locationError: new Error('Auth Middleware') });
-            if ( process.server ) {
-              redirect(302, '/fail-whale');
-            }
-          }
+      //   if ( status === 404 ) {
+      //     noAuth();
+      //   } else {
+      //     if ( status === 401 ) {
+      //       notLoggedIn();
+      //     } else {
+      //       store.commit('setError', { error: e, locationError: new Error('Auth Middleware') });
+      //       if ( process.server ) {
+      //         redirect(302, '/fail-whale');
+      //       }
+      //     }
 
-          return;
-        }
-      }
+      //     return;
+      //   }
+      // }
+      noAuth();
     }
   }
 
@@ -375,20 +374,20 @@ async function findMe(store) {
   return me;
 }
 
-async function tryInitialSetup(store, password = 'admin') {
-  try {
-    const res = await store.dispatch('auth/login', {
-      provider: 'local',
-      body:     {
-        username: 'admin',
-        password
-      },
-    });
+// async function tryInitialSetup(store, password = 'admin') {
+//   try {
+//     const res = await store.dispatch('auth/login', {
+//       provider: 'local',
+//       body:     {
+//         username: 'admin',
+//         password
+//       },
+//     });
 
-    return res._status === 200;
-  } catch (e) {
-    console.error('Error trying initial setup', e); // eslint-disable-line no-console
+//     return res._status === 200;
+//   } catch (e) {
+//     console.error('Error trying initial setup', e); // eslint-disable-line no-console
 
-    return false;
-  }
-}
+//     return false;
+//   }
+// }
