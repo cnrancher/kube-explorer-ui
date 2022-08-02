@@ -719,7 +719,7 @@ export default {
                   <a :href="href">{{ t('nav.userMenu.preferences') }}</a>
                 </li>
               </router-link>
-              <router-link
+              <!-- <router-link
                 v-if="showAccountAndApiKeyLink"
                 v-slot="{ href, navigate }"
                 custom
@@ -732,7 +732,7 @@ export default {
                 >
                   <a :href="href">{{ t('nav.userMenu.accountAndKeys', {}, true) }}</a>
                 </li>
-              </router-link>
+              </router-link> -->
               <router-link
                 v-if="authEnabled"
                 v-slot="{ href, navigate }"
