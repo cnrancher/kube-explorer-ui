@@ -691,14 +691,14 @@ export default {
               >
                 <a>{{ t('nav.userMenu.preferences') }}</a>
               </nuxt-link>
-              <nuxt-link
+              <!-- <nuxt-link
                 v-if="showAccountAndApiKeyLink"
                 tag="li"
                 :to="{name: 'account'}"
                 class="user-menu-item"
               >
                 <a>{{ t('nav.userMenu.accountAndKeys', {}, true) }}</a>
-              </nuxt-link>
+              </nuxt-link> -->
               <nuxt-link
                 v-if="authEnabled"
                 tag="li"
