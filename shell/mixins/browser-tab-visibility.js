@@ -1,4 +1,4 @@
-import { NORMAN } from '@shell/config/types';
+// import { NORMAN } from '@shell/config/types';
 import { mapGetters } from 'vuex';
 
 export default {
@@ -13,12 +13,12 @@ export default {
     },
 
     async visibilityChange() {
-      if (!document.hidden) {
-        await this.$store.dispatch('rancher/request', {
-          type: NORMAN.USER,
-          opt:  { url: '/v3/users?me=true' }
-        });
-      }
+      // if (!document.hidden) {
+      //   await this.$store.dispatch('rancher/request', {
+      //     type: NORMAN.USER,
+      //     opt:  { url: '/v3/users?me=true' }
+      //   });
+      // }
     },
   },
 
