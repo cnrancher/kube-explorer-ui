@@ -8,7 +8,6 @@ import {
   SERVICE,
   PVC,
   SERVICE_ACCOUNT,
-  CAPI,
   POD,
 } from '@shell/config/types';
 import Tab from '@shell/components/Tabbed/Tab';
@@ -118,7 +117,8 @@ export default {
   },
 
   async fetch() {
-    const requests = { rancherClusters: this.$store.dispatch('management/findAll', { type: CAPI.RANCHER_CLUSTER }) };
+    // const requests = { rancherClusters: this.$store.dispatch('management/findAll', { type: CAPI.RANCHER_CLUSTER }) };
+    const requests = {};
     const needed = {
       configMaps: CONFIG_MAP,
       nodes:      NODE,
