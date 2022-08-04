@@ -9,7 +9,6 @@ import {
   SERVICE,
   PVC,
   SERVICE_ACCOUNT,
-  CAPI,
   POD,
 } from '@shell/config/types';
 import Tab from '@shell/components/Tabbed/Tab';
@@ -119,7 +118,7 @@ export default {
   },
 
   async fetch() {
-    await this.$store.dispatch('management/findAll', { type: CAPI.RANCHER_CLUSTER });
+    // await this.$store.dispatch('management/findAll', { type: CAPI.RANCHER_CLUSTER });
 
     // don't block UI for these resources
     this.resourceManagerFetchSecondaryResources(this.secondaryResourceData);
