@@ -8,7 +8,7 @@ import {
   SERVICE,
   PVC,
   SERVICE_ACCOUNT,
-  CAPI,
+  // CAPI,
 } from '@shell/config/types';
 import Tab from '@shell/components/Tabbed/Tab';
 import CreateEditView from '@shell/mixins/create-edit-view';
@@ -115,7 +115,8 @@ export default {
   },
 
   async fetch() {
-    const requests = { rancherClusters: this.$store.dispatch('management/findAll', { type: CAPI.RANCHER_CLUSTER }) };
+    // const requests = { rancherClusters: this.$store.dispatch('management/findAll', { type: CAPI.RANCHER_CLUSTER }) };
+    const requests = {};
     const needed = {
       configMaps: CONFIG_MAP,
       nodes:      NODE,
