@@ -105,9 +105,9 @@ export default {
       // https://github.com/rancher/dashboard/issues/9792
       setPromiseResult(canViewGrafanaLink(this.$store), this, 'canViewMetrics', 'Determine Grafana Permission');
 
-      if (this.currentCluster.isLocal && this.$store.getters['management/schemaFor'](MANAGEMENT.NODE)) {
-        this.$store.dispatch('management/findAll', { type: MANAGEMENT.NODE });
-      }
+      // if (this.currentCluster.isLocal && this.$store.getters['management/schemaFor'](MANAGEMENT.NODE)) {
+      //   this.$store.dispatch('management/findAll', { type: MANAGEMENT.NODE });
+      // }
     }
   },
 
