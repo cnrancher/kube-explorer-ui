@@ -96,9 +96,9 @@ export default {
       `Determine etcd metrics`
     );
 
-    if (this.currentCluster.isLocal) {
-      this.$store.dispatch('management/findAll', { type: MANAGEMENT.NODE });
-    }
+    // if (this.currentCluster.isLocal) {
+    //   this.$store.dispatch('management/findAll', { type: MANAGEMENT.NODE });
+    // }
   },
 
   data() {
