@@ -467,7 +467,7 @@ module.exports = function(dir, _appConfig) {
   };
 
   const routerBasePath = process.env.ROUTER_BASE ?? '/';
-  let resourceBase = process.env.RESOURCE_BASE ?? '';
+  let resourceBase = dev ? process.env.RESOURCE_BASE ?? '' : process.env.RESOURCE_BASE ?? './';
   const outputDir = process.env.OUTPUT_DIR ?? 'dist';
   const rancherEnv = process.env.RANCHER_ENV || 'web';
 
