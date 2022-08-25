@@ -141,6 +141,9 @@ export function equivalentWatch(a, b) {
 }
 
 function getBasePath() {
+  if (process.env.dev) {
+    return '';
+  }
   const baseUrl = document.querySelector('head > base').href;
   const basePath = `${ baseUrl.slice(0, -'/dashboard/'.length).replace(window.location.origin, '') }`;
 
