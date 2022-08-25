@@ -228,7 +228,7 @@ module.exports = function(dir, _appConfig) {
   require('dotenv').config();
 
   let routerBasePath = '/';
-  let resourceBase = '';
+  let resourceBase = dev ? '' : './';
   let outputDir = 'dist';
 
   if ( typeof process.env.ROUTER_BASE !== 'undefined' ) {
