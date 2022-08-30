@@ -58,7 +58,7 @@ export function init(store) {
     'projects-namespaces',
     'namespaces',
     NODE,
-    VIRTUAL_TYPES.CLUSTER_MEMBERS,
+    // VIRTUAL_TYPES.CLUSTER_MEMBERS, for kube-explorer ui
     EVENT,
   ], 'cluster');
   basicType([
