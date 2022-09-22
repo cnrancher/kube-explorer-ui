@@ -127,7 +127,7 @@ const cookieOptions = {
   maxAge:   365 * 86400,
   path:     '/',
   sameSite: true,
-  secure:   true,
+  secure:   location.protocol === 'https:',
 };
 
 export const state = function() {
