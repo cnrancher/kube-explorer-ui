@@ -13,7 +13,7 @@ export default {
       }
     } catch (e) {}
 
-    this.globalSettings = await this.$store.dispatch('management/findAll', { type: MANAGEMENT.SETTING });
+    // this.globalSettings = await this.$store.dispatch('management/findAll', { type: MANAGEMENT.SETTING });
   },
 
   data() {
