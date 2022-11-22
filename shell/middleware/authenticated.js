@@ -104,13 +104,13 @@ export default async function({
   // let firstLogin = null;
 
   // try {
-  //   // Load settings, which will either be just the public ones if not logged in, or all if you are
-  //   await store.dispatch('management/findAll', {
-  //     type: MANAGEMENT.SETTING,
-  //     opt:  {
-  //       load: _ALL_IF_AUTHED, url: `/v1/${ MANAGEMENT.SETTING }`, redirectUnauthorized: false
-  //     }
-  //   });
+  // Load settings, which will either be just the public ones if not logged in, or all if you are
+  // await store.dispatch('management/findAll', {
+  //   type: MANAGEMENT.SETTING,
+  //   opt:  {
+  //     load: _ALL_IF_AUTHED, url: `/v1/${ MANAGEMENT.SETTING }`, redirectUnauthorized: false
+  //   }
+  // });
 
   //   // Set the favicon - use custom one from store if set
   //   if (!haveSetFavIcon()) {
