@@ -4,7 +4,7 @@ import { getVendor } from '@shell/config/private-label';
 import { SETTING } from '@shell/config/settings';
 import { findBy } from '@shell/utils/array';
 import { createCssVars } from '@shell/utils/color';
-import { _ALL_IF_AUTHED } from '@shell/plugins/dashboard-store/actions';
+// import { _ALL_IF_AUTHED } from '@shell/plugins/dashboard-store/actions';
 
 const cspAdaptorApp = ['rancher-csp-adapter', 'rancher-csp-billing-adapter'];
 
@@ -22,14 +22,14 @@ export default {
     } catch (e) {}
 
     // Ensure we read the settings even when we are not authenticated
-    try {
-      this.globalSettings = await this.$store.dispatch('management/findAll', {
-        type: MANAGEMENT.SETTING,
-        opt:  {
-          load: _ALL_IF_AUTHED, url: `/v1/${ MANAGEMENT.SETTING }`, redirectUnauthorized: false
-        }
-      });
-    } catch (e) {}
+    // try {
+    //   this.globalSettings = await this.$store.dispatch('management/findAll', {
+    //     type: MANAGEMENT.SETTING,
+    //     opt:  {
+    //       load: _ALL_IF_AUTHED, url: `/v1/${ MANAGEMENT.SETTING }`, redirectUnauthorized: false
+    //     }
+    //   });
+    // } catch (e) {}
 
     // Setting this up front will remove `computed` churn, and we only care that we've initialised them
     this.haveAppsAndSettings = !!this.apps && !!this.globalSettings;
