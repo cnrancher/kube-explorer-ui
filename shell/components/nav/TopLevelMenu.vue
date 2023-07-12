@@ -669,6 +669,7 @@ export default {
         <div
           class="footer"
         >
+          <!--
           <div
             v-if="canEditSettings"
             class="support"
@@ -680,6 +681,7 @@ export default {
               {{ t('nav.support', {hasSupport}) }}
             </nuxt-link>
           </div>
+          -->
           <!--
           <div
             class="version"
