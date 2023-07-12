@@ -461,14 +461,14 @@ export default {
           <div class="pad" />
         </div>
         <div class="footer">
-          <div
+          <!-- <div
             v-if="canEditSettings"
             @click="hide()"
           >
             <nuxt-link :to="{name: 'support'}">
               {{ t('nav.support', {hasSupport}) }}
             </nuxt-link>
-          </div>
+          </div> -->
           <!-- <div @click="hide()">
             <nuxt-link
               :to="{ name: 'about' }"
