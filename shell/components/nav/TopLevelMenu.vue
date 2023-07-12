@@ -858,6 +858,7 @@ export default {
         <div
           class="footer"
         >
+          <!--
           <div
             v-if="canEditSettings"
             class="support"
@@ -869,6 +870,7 @@ export default {
               {{ t('nav.support', {hasSupport}) }}
             </router-link>
           </div>
+          -->
           <!--
           <div
             class="version"
