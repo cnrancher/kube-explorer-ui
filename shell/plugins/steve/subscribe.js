@@ -315,9 +315,6 @@ function growlsDisabled(rootGetters) {
 }
 
 function getBasePath() {
-  if (process.env.dev) {
-    return '';
-  }
   const baseUrl = document.querySelector('head > base').href;
   const basePath = `${ baseUrl.slice(0, -'/dashboard/'.length).replace(window.location.origin, '') }`;
 
@@ -363,7 +360,7 @@ const sharedActions = {
       this.$workers[getters.storeName].postMessage({
         createWatcher: {
           metadata,
-          url:  `${ state.config.baseUrl }/subscribe`,
+          url,
           csrf: this.$cookies.get(CSRF, { parseJSON: false }),
           maxTries
         }
@@ -373,7 +370,7 @@ const sharedActions = {
       socket.setUrl(url);
       socket.connect(metadata);
     } else {
-      socket = new Socket(`${ state.config.baseUrl }/subscribe`, true, null, null, maxTries);
+      socket = new Socket(url, true, null, null, maxTries);
 
       commit('setSocket', socket);
       socket.addEventListener(EVENT_CONNECTED, (e) => {
