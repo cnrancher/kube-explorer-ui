@@ -40,8 +40,8 @@ if [ -v EMBED_PKG ]; then
     ls -alR $OUTPUT_DIR/$PKG_NAME
 fi
 
-echo "Update app router config..."
-find dist/* -maxdepth 1 -name "*.html" | xargs grep -l 'basePath:"/dashboard/"' | xargs sed -i.bak -e 's/basePath:"\/dashboard\/"/basePath:decodeURI(document.querySelector("head > base").href.replace(window.location.origin, ""))/'
+# echo "Update app router config..."
+# find dist/* -maxdepth 1 -name "*.html" | xargs grep -l 'basePath:"/dashboard/"' | xargs sed -i.bak -e 's/basePath:"\/dashboard\/"/basePath:decodeURI(document.querySelector("head > base").href.replace(window.location.origin, ""))/'
 
 echo "Destroying..."
 find $OUTPUT_DIR -name "index.html" -mindepth 2 -exec rm {} \;
