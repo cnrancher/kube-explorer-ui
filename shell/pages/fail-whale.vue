@@ -42,7 +42,7 @@ export default {
 
       // return this.$router.resolve({ name: 'home' }).href;
 
-      return process.client ? document.querySelector('head > base').href : '/';
+      return document.querySelector('head > base')?.href ?? '/';
     },
 
     displayError() {

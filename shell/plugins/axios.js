@@ -13,7 +13,8 @@ export default function({
     if ( csrf ) {
       config.headers['x-api-csrf'] = csrf;
     }
-    if (!process.env.dev && config.url.startsWith('/') ) {
+
+    if ( config.url.startsWith('/') ) {
       config.baseURL = `${ getBasePath() }`;
     }
   });
