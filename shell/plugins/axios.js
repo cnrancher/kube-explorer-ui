@@ -16,10 +16,6 @@ export default function({
       config.headers['x-api-csrf'] = csrf;
     }
 
-    if ( !process.env.dev && config.url.startsWith('/') ) {
-      config.baseURL = `${ getBasePath() }`;
-    }
-
     if ( process.server ) {
       config.headers.common['access-control-expose-headers'] = `set-cookie`;
       config.headers.common['user-agent'] = `Dashboard (Mozilla) v${ pkg.version }`;
@@ -29,7 +25,8 @@ export default function({
       }
 
       if ( config.url.startsWith('/') ) {
-        config.baseURL = `${ req.protocol || 'https' }://${ req.headers.host }`;
+        // config.baseURL = `${ req.protocol || 'https' }://${ req.headers.host }`;
+        config.baseURL = `${ getBasePath() }`;
       }
     }
   });
