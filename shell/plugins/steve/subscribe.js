@@ -371,7 +371,7 @@ const sharedActions = {
       socket.setUrl(url);
       socket.connect(metadata);
     } else {
-      socket = new Socket(`${ state.config.baseUrl }/subscribe`, true, null, null, maxTries);
+      socket = new Socket(url, true, null, null, maxTries);
 
       commit('setSocket', socket);
       socket.addEventListener(EVENT_CONNECTED, (e) => {
