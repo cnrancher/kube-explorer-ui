@@ -2,8 +2,8 @@ import { REDIRECTED } from '@shell/config/cookies';
 import { NAME as EXPLORER } from '@shell/config/product/explorer';
 import { TIMED_OUT, UPGRADED, _FLAGGED, _UNFLAG } from '@shell/config/query-params';
 // import { SETTING } from '@shell/config/settings';
-import { NORMAN, DEFAULT_WORKSPACE } from '@shell/config/types';
-// import { _ALL_IF_AUTHED } from '@shell/plugins/dashboard-store/actions';
+import { NORMAN, DEFAULT_WORKSPACE, MANAGEMENT } from '@shell/config/types';
+import { _ALL_IF_AUTHED } from '@shell/plugins/dashboard-store/actions';
 import { applyProducts } from '@shell/store/type-map';
 import { findBy } from '@shell/utils/array';
 import { ClusterNotFoundError } from '@shell/utils/error';
@@ -132,30 +132,30 @@ export default async function({
   // let initialPass = route.query[SETUP];
   // let firstLogin = null;
 
-  // try {
+  try {
   // Load settings, which will either be just the public ones if not logged in, or all if you are
-  // await store.dispatch('management/findAll', {
-  //   type: MANAGEMENT.SETTING,
-  //   opt:  {
-  //     load: _ALL_IF_AUTHED, url: `/v1/${ MANAGEMENT.SETTING }`, redirectUnauthorized: false
-  //   }
-  // });
+    await store.dispatch('management/findAll', {
+      type: MANAGEMENT.SETTING,
+      opt:  {
+        load: _ALL_IF_AUTHED, url: `/v1/${ MANAGEMENT.SETTING }`, redirectUnauthorized: false
+      }
+    });
 
-  //   // Set the favicon - use custom one from store if set
-  //   if (!haveSetFavIcon()) {
-  //     setFavIcon(store);
-  //   }
+    //   // Set the favicon - use custom one from store if set
+    //   if (!haveSetFavIcon()) {
+    //     setFavIcon(store);
+    //   }
 
-  //   const res = store.getters['management/byId'](MANAGEMENT.SETTING, SETTING.FIRST_LOGIN);
-  //   const plSetting = store.getters['management/byId'](MANAGEMENT.SETTING, SETTING.PL);
+    //   const res = store.getters['management/byId'](MANAGEMENT.SETTING, SETTING.FIRST_LOGIN);
+    //   const plSetting = store.getters['management/byId'](MANAGEMENT.SETTING, SETTING.PL);
 
-  //   firstLogin = res?.value === 'true';
+    //   firstLogin = res?.value === 'true';
 
   //   if (!initialPass && plSetting?.value === 'Harvester') {
   //     initialPass = 'admin';
   //   }
-  // } catch (e) {
-  // }
+  } catch (e) {
+  }
 
   // if ( firstLogin === null ) {
   //   try {
