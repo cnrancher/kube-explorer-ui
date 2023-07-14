@@ -9,8 +9,7 @@
 
 import { addObject, clear, removeObject } from '@shell/utils/array';
 import { get } from '@shell/utils/object';
-import { SCHEMA, MANAGEMENT } from '@shell/config/types';
-import { SETTING } from '@shell/config/settings';
+import { SCHEMA } from '@shell/config/types';
 import { CSRF } from '@shell/config/cookies';
 import { getPerformanceSetting } from '@shell/utils/settings';
 import Socket, {
@@ -48,11 +47,13 @@ const isWaitingForDestroy = (storeName, store) => {
 };
 
 const waitForSettingsSchema = (storeName, store) => {
-  return waitFor(() => isWaitingForDestroy(storeName, store) || !!store.getters['management/byId'](SCHEMA, MANAGEMENT.SETTING));
+  // return waitFor(() => isWaitingForDestroy(storeName, store) || !!store.getters['management/byId'](SCHEMA, MANAGEMENT.SETTING));
+  return waitFor(() => isWaitingForDestroy(storeName, store) || !!store.steveCreateWorker);
 };
 
 const waitForSettings = (storeName, store) => {
-  return waitFor(() => isWaitingForDestroy(storeName, store) || !!store.getters['management/byId'](MANAGEMENT.SETTING, SETTING.UI_PERFORMANCE));
+  // return waitFor(() => isWaitingForDestroy(storeName, store) || !!store.getters['management/byId'](MANAGEMENT.SETTING, SETTING.UI_PERFORMANCE));
+  return waitFor(() => isWaitingForDestroy(storeName, store) || !!store.steveCreateWorker);
 };
 
 const isAdvancedWorker = (ctx) => {
