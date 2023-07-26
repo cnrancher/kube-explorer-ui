@@ -42,7 +42,7 @@ import backButton from '../plugins/back-button';
 // import plugin from '../plugins/plugin';
 import codeMirror from '../plugins/codemirror-loader';
 import '../plugins/formatters';
-import version from '../plugins/version';
+// import version from '../plugins/version';
 import steveCreateWorker from '../plugins/steve-create-worker';
 
 // Component: <ClientOnly>
@@ -300,9 +300,9 @@ async function createApp(ssrContext, config = {}) {
     await codeMirror(app.context, inject);
   }
 
-  if (process.client && typeof version === 'function') {
-    await version(app.context, inject);
-  }
+  // if (process.client && typeof version === 'function') {
+  //   await version(app.context, inject);
+  // }
 
   if (process.client && typeof steveCreateWorker === 'function') {
     await steveCreateWorker(app.context, inject);
