@@ -39,7 +39,7 @@ import intNumber from '../plugins/int-number';
 import nuxtClientInit from '../plugins/nuxt-client-init';
 import replaceAll from '../plugins/replaceall';
 import backButton from '../plugins/back-button';
-import plugin from '../plugins/plugin';
+// import plugin from '../plugins/plugin';
 import codeMirror from '../plugins/codemirror-loader';
 import '../plugins/formatters';
 import version from '../plugins/version';
@@ -292,9 +292,9 @@ async function createApp(ssrContext, config = {}) {
     await backButton(app.context, inject);
   }
 
-  if (process.client && typeof plugin === 'function') {
-    await plugin(app.context, inject);
-  }
+  // if (process.client && typeof plugin === 'function') {
+  //   await plugin(app.context, inject);
+  // }
 
   if (process.client && typeof codeMirror === 'function') {
     await codeMirror(app.context, inject);
