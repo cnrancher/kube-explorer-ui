@@ -1,7 +1,7 @@
 <script>
 import BrandImage from '@shell/components/BrandImage';
 import ClusterIconMenu from '@shell/components/ClusterIconMenu';
-import IconOrSvg from '../IconOrSvg';
+// import IconOrSvg from '../IconOrSvg';
 import { BLANK_CLUSTER } from '@shell/store/store-types.js';
 import { mapGetters } from 'vuex';
 import { CAPI, MANAGEMENT } from '@shell/config/types';
@@ -22,7 +22,7 @@ export default {
   components: {
     BrandImage,
     ClusterIconMenu,
-    IconOrSvg,
+    // IconOrSvg,
     Pinned
   },
 
@@ -823,6 +823,7 @@ export default {
             </template>
             -->
             <!-- App menu -->
+            <!--
             <template v-if="configurationApps.length">
               <div
                 class="category-title"
@@ -851,6 +852,7 @@ export default {
                 </router-link>
               </div>
             </template>
+            -->
           </div>
         </div>
 
