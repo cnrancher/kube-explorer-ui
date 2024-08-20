@@ -16,7 +16,7 @@ import Password from '@shell/components/form/Password';
 import { sortBy } from '@shell/utils/sort';
 import { configType } from '@shell/models/management.cattle.io.authconfig';
 import { mapGetters } from 'vuex';
-import { _MULTI } from '@shell/plugins/dashboard-store/actions';
+import { _MULTI, _ALL_IF_AUTHED } from '@shell/plugins/dashboard-store/actions';
 import { MANAGEMENT, NORMAN } from '@shell/config/types';
 import { SETTING } from '@shell/config/settings';
 import { LOGIN_ERRORS } from '@shell/store/auth';
@@ -153,6 +153,12 @@ export default {
       // For newer versions this will return all settings if you are somehow logged in,
       // and just the public ones if you aren't.
       try {
+        await this.$store.dispatch('management/findAll', {
+          type: MANAGEMENT.SETTING,
+          opt:  {
+            load: _ALL_IF_AUTHED, url: `/v1/${ MANAGEMENT.SETTING }`, redirectUnauthorized: false
+          },
+        });
         firstLoginSetting = this.$store.getters['management/byId'](MANAGEMENT.SETTING, SETTING.FIRST_LOGIN);
         plSetting = this.$store.getters['management/byId'](MANAGEMENT.SETTING, SETTING.PL);
         brand = this.$store.getters['management/byId'](MANAGEMENT.SETTING, SETTING.BRAND);
