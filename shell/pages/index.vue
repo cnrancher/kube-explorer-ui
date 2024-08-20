@@ -44,10 +44,10 @@ export default {
     return redirect(dashboardHome);
   }
   */
-  fetch({ store, redirect }) {
+  middleware({ store, redirect }) {
     const id = store.getters['defaultClusterId'] || 'local';
 
-    redirect({
+    return redirect({
       name:   'c-cluster-product',
       params: {
         cluster: id,
