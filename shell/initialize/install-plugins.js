@@ -22,7 +22,7 @@ import codeMirror from '@shell/plugins/codemirror-loader';
 import VueCodemirror from 'vue-codemirror';
 import * as intNumber from '@shell/directives/int-number';
 import nuxtClientInit from '@shell/plugins/nuxt-client-init';
-import plugin from '@shell/plugins/plugin';
+// import plugin from '@shell/plugins/plugin';
 import plugins from '@shell/core/plugins.js';
 import pluginsLoader from '@shell/core/plugins-loader.js';
 import replaceAll from '@shell/plugins/replaceall';
@@ -41,7 +41,7 @@ export async function installPlugins(vueApp) {
 }
 
 export async function installInjectedPlugins(app, vueApp) {
-  const pluginDefinitions = [config, cookieUniversalNuxt, axios, plugins, pluginsLoader, axiosShell, intNumber, codeMirror, nuxtClientInit, replaceAll, backButton, plugin, /* version, */ steveCreateWorker, emberCookie];
+  const pluginDefinitions = [config, cookieUniversalNuxt, axios, plugins, pluginsLoader, axiosShell, intNumber, codeMirror, nuxtClientInit, replaceAll, backButton, /* plugin, version, */ steveCreateWorker, emberCookie];
 
   const installations = pluginDefinitions.map(async(pluginDefinition) => {
     if (typeof pluginDefinition === 'function') {
