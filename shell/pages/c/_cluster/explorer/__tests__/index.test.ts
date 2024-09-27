@@ -69,24 +69,24 @@ describe('page: cluster dashboard', () => {
   });
 
   describe.each([
-    ['local', 'fleet', true, ['fleetDeployment', 'fleetStatefulSet'], [
-      [STATES_ENUM.IN_PROGRESS, 'icon-spinner', false, false, false, '', 0, 0],
-      [STATES_ENUM.UNHEALTHY, 'icon-warning', true, false, false, [{ status: 'False' }], 0, 0],
-      [STATES_ENUM.UNHEALTHY, 'icon-warning', true, false, true, [{ status: 'True' }], 0, 0],
-      [STATES_ENUM.WARNING, 'icon-warning', true, true, false, [{ status: 'True' }], 0, 0],
-      [STATES_ENUM.WARNING, 'icon-warning', true, false, false, [{ status: 'True' }], 0, 0],
-      [STATES_ENUM.WARNING, 'icon-warning', true, false, false, [{ status: 'True' }], 0, 1],
-      [STATES_ENUM.HEALTHY, 'icon-checkmark', true, false, false, [{ status: 'True' }], 1, 0],
-    ]],
-    ['downstream RKE2', 'fleet', false, ['fleetStatefulSet'], [
-      [STATES_ENUM.IN_PROGRESS, 'icon-spinner', false, false, false, '', 0, 0],
-      [STATES_ENUM.UNHEALTHY, 'icon-warning', true, false, false, [{ status: 'False' }], 0, 0],
-      [STATES_ENUM.UNHEALTHY, 'icon-warning', true, false, true, [{ status: 'True' }], 0, 0],
-      [STATES_ENUM.WARNING, 'icon-warning', true, true, false, [{ status: 'True' }], 0, 0],
-      [STATES_ENUM.WARNING, 'icon-warning', true, false, false, [{ status: 'True' }], 0, 0],
-      [STATES_ENUM.WARNING, 'icon-warning', true, false, false, [{ status: 'True' }], 0, 1],
-      [STATES_ENUM.HEALTHY, 'icon-checkmark', true, false, false, [{ status: 'True' }], 1, 0],
-    ]],
+    // ['local', 'fleet', true, ['fleetDeployment', 'fleetStatefulSet'], [
+    //   [STATES_ENUM.IN_PROGRESS, 'icon-spinner', false, false, false, '', 0, 0],
+    //   [STATES_ENUM.UNHEALTHY, 'icon-warning', true, false, false, [{ status: 'False' }], 0, 0],
+    //   [STATES_ENUM.UNHEALTHY, 'icon-warning', true, false, true, [{ status: 'True' }], 0, 0],
+    //   [STATES_ENUM.WARNING, 'icon-warning', true, true, false, [{ status: 'True' }], 0, 0],
+    //   [STATES_ENUM.WARNING, 'icon-warning', true, false, false, [{ status: 'True' }], 0, 0],
+    //   [STATES_ENUM.WARNING, 'icon-warning', true, false, false, [{ status: 'True' }], 0, 1],
+    //   [STATES_ENUM.HEALTHY, 'icon-checkmark', true, false, false, [{ status: 'True' }], 1, 0],
+    // ]],
+    // ['downstream RKE2', 'fleet', false, ['fleetStatefulSet'], [
+    //   [STATES_ENUM.IN_PROGRESS, 'icon-spinner', false, false, false, '', 0, 0],
+    //   [STATES_ENUM.UNHEALTHY, 'icon-warning', true, false, false, [{ status: 'False' }], 0, 0],
+    //   [STATES_ENUM.UNHEALTHY, 'icon-warning', true, false, true, [{ status: 'True' }], 0, 0],
+    //   [STATES_ENUM.WARNING, 'icon-warning', true, true, false, [{ status: 'True' }], 0, 0],
+    //   [STATES_ENUM.WARNING, 'icon-warning', true, false, false, [{ status: 'True' }], 0, 0],
+    //   [STATES_ENUM.WARNING, 'icon-warning', true, false, false, [{ status: 'True' }], 0, 1],
+    //   [STATES_ENUM.HEALTHY, 'icon-checkmark', true, false, false, [{ status: 'True' }], 1, 0],
+    // ]],
     ['downstream RKE2', 'cattle', false, ['cattleDeployment'], [
       [STATES_ENUM.IN_PROGRESS, 'icon-spinner', false, false, false, '', 0, 0],
       [STATES_ENUM.UNHEALTHY, 'icon-warning', true, false, false, [{ status: 'False' }], 0, 0],

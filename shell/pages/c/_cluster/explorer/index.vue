@@ -281,11 +281,12 @@ export default {
           });
         }
 
-        services.push({
-          name:     'fleet',
-          status:   this.fleetStatus,
-          labelKey: 'clusterIndexPage.sections.componentStatus.fleet',
-        });
+      // for Kube-explorer, no need to show fleet status
+      //  services.push({
+      //    name:     'fleet',
+      //    status:   this.fleetStatus,
+      //    labelKey: 'clusterIndexPage.sections.componentStatus.fleet',
+      //  });
       }
 
       return services;
