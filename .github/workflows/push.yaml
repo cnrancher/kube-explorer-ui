@@ -1,0 +1,35 @@
+name: Push to Master
+
+on:
+  push:
+    tags:
+      - 'v*.*.*-kube-explorer-ui-rc*'
+      - 'v*.*.*-kube-explorer-ui'
+env:
+  BUCKET_NAME: 'pandaria-dashboard-ui'
+  AWS_REGION: '${{ vars.AWS_REGION }}'
+permissions:
+  id-token: write # This is required for requesting the JWT
+  contents: read # This is required for actions/checkout
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: upload-kube-explorer-ui
+          role-to-assume: arn:aws:iam::852061510766:role/github-actions-aws-s3-role
+      - uses: actions/setup-node@v4
+        with:
+          node-version:  lts/fermium
+      - name: build
+        run: |
+          ./scripts/build-embedded
+      - name: Upload static to s3
+        run: |
+          aws s3 cp dist/${GITHUB_REF#refs/tags/}.tar.gz s3://${{ env.BUCKET_NAME }}/kube-explorer/ --acl public-read
