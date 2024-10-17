@@ -32,4 +32,4 @@ jobs:
           ./scripts/build-embedded
       - name: Upload static to s3
         run: |
-          aws s3 cp dist/static/${GITHUB_REF#refs/tags/}.tar.gz s3://${{ env.BUCKET_NAME }}/kube-explorer/ --acl public-read --delete
+          aws s3 cp dist/static/${GITHUB_REF#refs/tags/}.tar.gz s3://${{ env.BUCKET_NAME }}/kube-explorer/ --acl public-read
