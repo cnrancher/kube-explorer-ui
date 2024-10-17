@@ -23,7 +23,6 @@ jobs:
         with:
           aws-region: ${{ env.AWS_REGION }}
           role-session-name: upload-kube-explorer-ui
-          # TODO change role here
           role-to-assume: arn:aws:iam::852061510766:role/github-actions-aws-s3-role
       - uses: actions/setup-node@v4
         with:
@@ -32,6 +31,5 @@ jobs:
         run: |
           ./scripts/build-embedded
       - name: Upload static to s3
-        if: startsWith(github.ref,'refs/heads/')
         run: |
           aws s3 cp dist/static/${GITHUB_REF#refs/tags/}.tar.gz s3://${{ env.BUCKET_NAME }}/kube-explorer/ --acl public-read --delete
